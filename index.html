@@ -2326,11 +2326,18 @@ function doPost(e) {
     var partsSheet = ss.getSheetByName("Parts") || ss.insertSheet("Parts");
     partsSheet.clear();
     if (data.parts && data.parts.length > 0) {
-      var partsHeaders = Object.keys(data.parts[0]);
+      var partsHeaders = [
+        "code", "name", "description", "manufacturer", "equipmentModels",
+        "inStock", "unitPrice", "minStock", "maxStock", "reorderPoint",
+        "reorderQty", "location", "supplierName", "supplierContact",
+        "purchaseDate", "expiryDate", "leadTime", "repairFreq", "abcClass", "totalValue"
+      ];
       partsSheet.appendRow(partsHeaders);
       var partsRows = data.parts.map(function(p) {
         return partsHeaders.map(function(h) {
-          return typeof p[h] === 'object' ? JSON.stringify(p[h]) : p[h];
+          var val = p[h];
+          if (val === undefined || val === null) return "";
+          return typeof val === 'object' ? JSON.stringify(val) : val;
         });
       });
       partsSheet.getRange(2, 1, partsRows.length, partsHeaders.length).setValues(partsRows);
@@ -2340,11 +2347,17 @@ function doPost(e) {
     var txSheet = ss.getSheetByName("Transactions") || ss.insertSheet("Transactions");
     txSheet.clear();
     if (data.transactions && data.transactions.length > 0) {
-      var txHeaders = Object.keys(data.transactions[0]);
+      var txHeaders = [
+        "id", "timestamp", "type", "partCode", "partName", "qty", "refDoc",
+        "repairNo", "dept", "operator", "operatorRole", "details", "cost",
+        "eqSerial", "eqModel", "maintenanceType", "borrowStatus", "borrowDueDate"
+      ];
       txSheet.appendRow(txHeaders);
       var txRows = data.transactions.map(function(t) {
         return txHeaders.map(function(h) {
-          return typeof t[h] === 'object' ? JSON.stringify(t[h]) : t[h];
+          var val = t[h];
+          if (val === undefined || val === null) return "";
+          return typeof val === 'object' ? JSON.stringify(val) : val;
         });
       });
       txSheet.getRange(2, 1, txRows.length, txHeaders.length).setValues(txRows);
@@ -2354,11 +2367,15 @@ function doPost(e) {
     var usersSheet = ss.getSheetByName("Users") || ss.insertSheet("Users");
     usersSheet.clear();
     if (data.users && data.users.length > 0) {
-      var usersHeaders = Object.keys(data.users[0]);
+      var usersHeaders = [
+        "realName", "password", "role", "status", "loginCount"
+      ];
       usersSheet.appendRow(usersHeaders);
       var usersRows = data.users.map(function(u) {
         return usersHeaders.map(function(h) {
-          return typeof u[h] === 'object' ? JSON.stringify(u[h]) : u[h];
+          var val = u[h];
+          if (val === undefined || val === null) return "";
+          return typeof val === 'object' ? JSON.stringify(val) : val;
         });
       });
       usersSheet.getRange(2, 1, usersRows.length, usersHeaders.length).setValues(usersRows);
