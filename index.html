@@ -1507,7 +1507,7 @@
                 <input type="date" id="tx-due-date">
               </div>
 
-              <div class="form-group">
+              <div class="form-group" id="tx-ref-doc-group">
                 <label for="tx-ref-doc">เอกสารอ้างอิง / รหัสใบงาน (Ref Document)</label>
                 <input type="text" id="tx-ref-doc" placeholder="เช่น PO-xx, CM-xxxx, สัญญาเลขที่">
               </div>
@@ -3195,6 +3195,24 @@ function sendLineNotify(message, token, toId) {
           btnAddPart.style.display = "none";
         } else {
           btnAddPart.style.display = "inline-flex";
+        }
+      }
+
+      const refDocGroup = document.getElementById("tx-ref-doc-group");
+      if (refDocGroup) {
+        if (role === "General User") {
+          refDocGroup.style.display = "none";
+        } else {
+          refDocGroup.style.display = "block";
+        }
+      }
+
+      const btnExport = document.getElementById("btn-export-logs");
+      if (btnExport) {
+        if (role === "General User") {
+          btnExport.style.display = "none";
+        } else {
+          btnExport.style.display = "inline-flex";
         }
       }
 
