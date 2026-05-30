@@ -207,7 +207,7 @@
     /* App Shell Layout */
     .app-container {
       display: flex;
-      width: 100vw;
+      width: 100%;
       min-height: 100vh;
     }
 
@@ -406,7 +406,7 @@
       margin-left: var(--sidebar-width);
       flex-grow: 1;
       padding: 40px;
-      max-width: calc(100vw - var(--sidebar-width));
+      max-width: calc(100% - var(--sidebar-width));
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -2667,7 +2667,7 @@ function sendLineNotify(message, token, toId) {
         document.body.style.zoom = "1";
         document.body.style.width = "auto";
         if (appContainer) {
-          appContainer.style.width = "100vw";
+          appContainer.style.width = "100%";
         }
       }
     }
