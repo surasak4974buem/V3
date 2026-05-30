@@ -5,6 +5,60 @@ function doPost(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var data = JSON.parse(e.postData.contents);
   
+  // 1. ตรวจสอบว่าเป็น Webhook จาก LINE หรือไม่ (จะมี events)
+  if (data.events && data.events.length > 0) {
+    try {
+      var event = data.events[0];
+      var source = event.source || {};
+      var sourceType = source.type; // "user", "group", or "room"
+      var sourceId = "";
+      
+      if (sourceType === "group") {
+        sourceId = source.groupId;
+      } else if (sourceType === "room") {
+        sourceId = source.roomId;
+      } else {
+        sourceId = source.userId;
+      }
+      
+      var messageText = "";
+      if (event.message && event.message.type === "text") {
+        messageText = event.message.text;
+      }
+      
+      // บันทึกลงใน Sheet "LINE_IDs" เพื่อให้ช่างเข้ามาดูและก๊อปปี้ได้ง่ายๆ
+      var idSheet = ss.getSheetByName("LINE_IDs") || ss.insertSheet("LINE_IDs");
+      if (idSheet.getLastRow() === 0) {
+        idSheet.appendRow(["วันเวลา", "ประเภทห้องแชต", "ID (นำไปกรอกในช่องตั้งค่า)", "ข้อความล่าสุด"]);
+      }
+      
+      // ตรวจสอบไม่ให้บันทึก ID ซ้ำซ้อนติดๆ กันในตาราง
+      var lastRow = idSheet.getLastRow();
+      var isDuplicate = false;
+      if (lastRow > 1) {
+        var lastId = idSheet.getRange(lastRow, 3).getValue();
+        if (lastId === sourceId) {
+          isDuplicate = true;
+          // อัปเดตวันเวลาและข้อความล่าสุดในแถวเดิม
+          idSheet.getRange(lastRow, 1).setValue(new Date());
+          idSheet.getRange(lastRow, 4).setValue(messageText);
+        }
+      }
+      
+      if (!isDuplicate) {
+        idSheet.appendRow([new Date(), sourceType, sourceId, messageText]);
+      }
+      
+      console.log("LINE Webhook logged successfully: Type=" + sourceType + ", ID=" + sourceId);
+    } catch (err) {
+      console.log("Error handling LINE Webhook: " + err.toString());
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({status: "webhook_logged"}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  // 2. การซิงก์ข้อมูลฐานข้อมูลคลัง
   if (data.action === "sync") {
     // 1. ซิงก์ชีตข้อมูลอะไหล่ (Parts)
     var partsSheet = ss.getSheetByName("Parts") || ss.insertSheet("Parts");
@@ -14,7 +68,6 @@ function doPost(e) {
       partsSheet.appendRow(partsHeaders);
       var partsRows = data.parts.map(function(p) {
         return partsHeaders.map(function(h) {
-          // หากค่าเป็น Object/Array ให้แปลงเป็นสตริง JSON
           return typeof p[h] === 'object' ? JSON.stringify(p[h]) : p[h];
         });
       });
@@ -53,8 +106,26 @@ function doPost(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
   
+  // 3. การส่งข้อความแจ้งเตือน LINE
   if (data.action === "notify") {
     var lineResult = sendLineNotify(data.message, data.token, data.groupId);
+    
+    try {
+      var logSheet = ss.getSheetByName("LINE_Logs") || ss.insertSheet("LINE_Logs");
+      if (logSheet.getLastRow() === 0) {
+        logSheet.appendRow(["วันเวลา", "ผู้รับ (Group/User ID)", "ผลการทำงาน", "รายละเอียดข้อความ"]);
+      }
+      
+      var statusText = "ส่งสำเร็จ";
+      if (lineResult.indexOf("error") !== -1 || lineResult.indexOf("message") !== -1) {
+        statusText = "ล้มเหลว: " + lineResult;
+      }
+      
+      logSheet.appendRow([new Date(), data.groupId, statusText, JSON.stringify(data.message)]);
+    } catch(err) {
+      console.log("Error logging LINE status to Sheet: " + err.toString());
+    }
+
     return ContentService.createTextOutput(JSON.stringify({status: "sent", result: lineResult}))
       .setMimeType(ContentService.MimeType.JSON);
   }
@@ -109,7 +180,6 @@ function getSheetDataJson(sheet) {
   return data;
 }
 
-// ฟังก์ชันส่ง Flex Message ไปกลุ่ม LINE OA
 function sendLineNotify(flexMessage, token, groupId) {
   var url = "https://api.line.me/v2/bot/message/push";
   var payload = {
@@ -133,6 +203,15 @@ function sendLineNotify(flexMessage, token, groupId) {
     "muteHttpExceptions": true
   };
   
-  var response = UrlFetchApp.fetch(url, options);
-  return response.getContentText();
+  try {
+    console.log("Sending push notification to: " + groupId);
+    var response = UrlFetchApp.fetch(url, options);
+    var resText = response.getContentText();
+    console.log("LINE Response Code: " + response.getResponseCode());
+    console.log("LINE Response Body: " + resText);
+    return resText;
+  } catch (err) {
+    console.log("Error in UrlFetchApp: " + err.toString());
+    return JSON.stringify({error: err.toString()});
+  }
 }

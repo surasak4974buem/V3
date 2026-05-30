@@ -2259,13 +2259,69 @@
                 <div class="code-block-container">
                   <button class="code-copy-btn" id="btn-copy-code">Copy Code</button>
                   <pre id="code-content">
-// Google Apps Script สำหรับระบบฐานข้อมูลคลังและจัดการสิทธิ์ รพ.นครพิงค์
+// Google Apps Script สำหรับระบบฐานข้อมูลคลังอะไหล่แพทย์และแจ้งเตือน LINE OA โรงพยาบาลนครพิงค์
+// วิธีใช้งาน: นำโค้ดทั้งหมดนี้ไปวางใน "ส่วนขยาย" -> "Apps Script" ของไฟล์ Google Sheets ของคุณ
+
 function doPost(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var data = JSON.parse(e.postData.contents);
   
+  // 1. ตรวจสอบว่าเป็น Webhook จาก LINE หรือไม่ (จะมี events)
+  if (data.events && data.events.length > 0) {
+    try {
+      var event = data.events[0];
+      var source = event.source || {};
+      var sourceType = source.type; // "user", "group", or "room"
+      var sourceId = "";
+      
+      if (sourceType === "group") {
+        sourceId = source.groupId;
+      } else if (sourceType === "room") {
+        sourceId = source.roomId;
+      } else {
+        sourceId = source.userId;
+      }
+      
+      var messageText = "";
+      if (event.message && event.message.type === "text") {
+        messageText = event.message.text;
+      }
+      
+      // บันทึกลงใน Sheet "LINE_IDs" เพื่อให้ช่างเข้ามาดูและก๊อปปี้ได้ง่ายๆ
+      var idSheet = ss.getSheetByName("LINE_IDs") || ss.insertSheet("LINE_IDs");
+      if (idSheet.getLastRow() === 0) {
+        idSheet.appendRow(["วันเวลา", "ประเภทห้องแชต", "ID (นำไปกรอกในช่องตั้งค่า)", "ข้อความล่าสุด"]);
+      }
+      
+      // ตรวจสอบไม่ให้บันทึก ID ซ้ำซ้อนติดๆ กันในตาราง
+      var lastRow = idSheet.getLastRow();
+      var isDuplicate = false;
+      if (lastRow > 1) {
+        var lastId = idSheet.getRange(lastRow, 3).getValue();
+        if (lastId === sourceId) {
+          isDuplicate = true;
+          // อัปเดตวันเวลาและข้อความล่าสุดในแถวเดิม
+          idSheet.getRange(lastRow, 1).setValue(new Date());
+          idSheet.getRange(lastRow, 4).setValue(messageText);
+        }
+      }
+      
+      if (!isDuplicate) {
+        idSheet.appendRow([new Date(), sourceType, sourceId, messageText]);
+      }
+      
+      console.log("LINE Webhook logged successfully: Type=" + sourceType + ", ID=" + sourceId);
+    } catch (err) {
+      console.log("Error handling LINE Webhook: " + err.toString());
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({status: "webhook_logged"}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  // 2. การซิงก์ข้อมูลฐานข้อมูลคลัง
   if (data.action === "sync") {
-    // 1. Sync Parts Sheet
+    // 1. ซิงก์ชีตข้อมูลอะไหล่ (Parts)
     var partsSheet = ss.getSheetByName("Parts") || ss.insertSheet("Parts");
     partsSheet.clear();
     if (data.parts && data.parts.length > 0) {
@@ -2279,7 +2335,7 @@ function doPost(e) {
       partsSheet.getRange(2, 1, partsRows.length, partsHeaders.length).setValues(partsRows);
     }
     
-    // 2. Sync Transactions Sheet
+    // 2. ซิงก์ชีตประวัติการทำรายการคลัง (Transactions)
     var txSheet = ss.getSheetByName("Transactions") || ss.insertSheet("Transactions");
     txSheet.clear();
     if (data.transactions && data.transactions.length > 0) {
@@ -2293,7 +2349,7 @@ function doPost(e) {
       txSheet.getRange(2, 1, txRows.length, txHeaders.length).setValues(txRows);
     }
 
-    // 3. Sync Users Sheet
+    // 3. ซิงก์ชีตรายชื่อและสิทธิ์ผู้ใช้งาน (Users)
     var usersSheet = ss.getSheetByName("Users") || ss.insertSheet("Users");
     usersSheet.clear();
     if (data.users && data.users.length > 0) {
@@ -2301,7 +2357,7 @@ function doPost(e) {
       usersSheet.appendRow(usersHeaders);
       var usersRows = data.users.map(function(u) {
         return usersHeaders.map(function(h) {
-          return u[h];
+          return typeof u[h] === 'object' ? JSON.stringify(u[h]) : u[h];
         });
       });
       usersSheet.getRange(2, 1, usersRows.length, usersHeaders.length).setValues(usersRows);
@@ -2311,9 +2367,27 @@ function doPost(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
   
+  // 3. การส่งข้อความแจ้งเตือน LINE
   if (data.action === "notify") {
-    sendLineNotify(data.message, data.token, data.groupId);
-    return ContentService.createTextOutput(JSON.stringify({status: "sent"}))
+    var lineResult = sendLineNotify(data.message, data.token, data.groupId);
+    
+    try {
+      var logSheet = ss.getSheetByName("LINE_Logs") || ss.insertSheet("LINE_Logs");
+      if (logSheet.getLastRow() === 0) {
+        logSheet.appendRow(["วันเวลา", "ผู้รับ (Group/User ID)", "ผลการทำงาน", "รายละเอียดข้อความ"]);
+      }
+      
+      var statusText = "ส่งสำเร็จ";
+      if (lineResult.indexOf("error") !== -1 || lineResult.indexOf("message") !== -1) {
+        statusText = "ล้มเหลว: " + lineResult;
+      }
+      
+      logSheet.appendRow([new Date(), data.groupId, statusText, JSON.stringify(data.message)]);
+    } catch(err) {
+      console.log("Error logging LINE status to Sheet: " + err.toString());
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({status: "sent", result: lineResult}))
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
@@ -2331,7 +2405,7 @@ function doGet(e) {
   if (txSheet) {
     result.transactions = getSheetDataJson(txSheet);
   }
-  
+
   var usersSheet = ss.getSheetByName("Users");
   if (usersSheet) {
     result.users = getSheetDataJson(usersSheet);
@@ -2341,36 +2415,41 @@ function doGet(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+// ฟังก์ชันช่วยดึงข้อมูลจากชีตแปลงเป็น JSON Array
 function getSheetDataJson(sheet) {
-  var range = sheet.getDataRange();
-  var values = range.getValues();
-  if (values.length <= 1) return [];
-  var headers = values[0];
+  var rows = sheet.getDataRange().getValues();
+  if (rows.length < 2) return [];
+  
+  var headers = rows[0];
   var data = [];
-  for (var r = 1; r < values.length; r++) {
-    var row = values[r];
+  
+  for (var i = 1; i < rows.length; i++) {
+    var row = rows[i];
     var obj = {};
-    for (var c = 0; c < headers.length; c++) {
-      var val = row[c];
+    for (var j = 0; j < headers.length; j++) {
+      var val = row[j];
+      // ลองตรวจเช็กว่าค่าในช่องนั้นเป็น JSON string ของ Array/Object หรือไม่
       if (typeof val === 'string' && (val.indexOf('[') === 0 || val.indexOf('{') === 0)) {
-        try { val = JSON.parse(val); } catch(e) {}
+        try {
+          val = JSON.parse(val);
+        } catch(e) {}
       }
-      obj[headers[c]] = val;
+      obj[headers[j]] = val;
     }
     data.push(obj);
   }
   return data;
 }
 
-function sendLineNotify(message, token, toId) {
+function sendLineNotify(flexMessage, token, groupId) {
   var url = "https://api.line.me/v2/bot/message/push";
   var payload = {
-    "to": toId,
+    "to": groupId,
     "messages": [
       {
         "type": "flex",
-        "altText": "มีการเบิกจ่ายอะไหล่ในคลัง รพ.นครพิงค์",
-        "contents": message
+        "altText": "🚨 แจ้งเตือนการทำรายการคลังอะไหล่เครื่องมือแพทย์ รพ.นครพิงค์",
+        "contents": flexMessage
       }
     ]
   };
@@ -2384,7 +2463,18 @@ function sendLineNotify(message, token, toId) {
     "payload": JSON.stringify(payload),
     "muteHttpExceptions": true
   };
-  UrlFetchApp.fetch(url, options);
+  
+  try {
+    console.log("Sending push notification to: " + groupId);
+    var response = UrlFetchApp.fetch(url, options);
+    var resText = response.getContentText();
+    console.log("LINE Response Code: " + response.getResponseCode());
+    console.log("LINE Response Body: " + resText);
+    return resText;
+  } catch (err) {
+    console.log("Error in UrlFetchApp: " + err.toString());
+    return JSON.stringify({error: err.toString()});
+  }
 }
                   </pre>
                 </div>
@@ -3018,6 +3108,20 @@ function sendLineNotify(message, token, toId) {
       renderPMPlans();
       renderProcurementMonitor();
       renderMemorandum();
+      
+      // ดึงโค้ด Google Apps Script ล่าสุดมาแสดงผลในหน้าตั้งค่าโดยตรง
+      fetch('./code.gs')
+        .then(response => {
+          if (response.ok) return response.text();
+          throw new Error('Failed to fetch code.gs');
+        })
+        .then(codeText => {
+          const el = document.getElementById("code-content");
+          if (el) el.innerText = codeText;
+        })
+        .catch(err => {
+          console.log("Could not load code.gs dynamically, using fallback HTML content.", err);
+        });
     });
 
     // 1. LocalStorage and State Initialization
@@ -4965,6 +5069,45 @@ function sendLineNotify(message, token, toId) {
                          tx.type === "Borrow" ? "#f97316" :
                          tx.type === "Receive" ? "#22c55e" : "#14b8a6";
 
+      const detailContents = [
+        {
+          "type": "box",
+          "layout": "horizontal",
+          "contents": [
+            { "type": "text", "text": "จำนวน:", "size": "sm", "color": "#555555" },
+            { "type": "text", "text": tx.qty + " ชิ้น", "size": "sm", "weight": "bold", "align": "right" }
+          ]
+        },
+        {
+          "type": "box",
+          "layout": "horizontal",
+          "contents": [
+            { "type": "text", "text": "คงคลังล่าสุด:", "size": "sm", "color": "#555555" },
+            { "type": "text", "text": remainingStock + " ชิ้น", "size": "sm", "weight": "bold", "color": remainingStock <= 5 ? "#ef4444" : "#22c55e", "align": "right" }
+          ]
+        }
+      ];
+
+      if (tx.eqSerial) {
+        detailContents.push({
+          "type": "box",
+          "layout": "horizontal",
+          "contents": [
+            { "type": "text", "text": "ซีเรียลเครื่องซ่อม:", "size": "sm", "color": "#555555" },
+            { "type": "text", "text": tx.eqSerial, "size": "sm", "align": "right" }
+          ]
+        });
+      }
+
+      detailContents.push({
+        "type": "box",
+        "layout": "horizontal",
+        "contents": [
+          { "type": "text", "text": "ช่างเทคนิค:", "size": "sm", "color": "#555555" },
+          { "type": "text", "text": tx.operator, "size": "sm", "align": "right" }
+        ]
+      });
+
       const flexMessage = {
         "type": "bubble",
         "header": {
@@ -4988,40 +5131,7 @@ function sendLineNotify(message, token, toId) {
               "layout": "vertical",
               "margin": "md",
               "spacing": "sm",
-              "contents": [
-                {
-                  "type": "box",
-                  "layout": "horizontal",
-                  "contents": [
-                    { "type": "text", "text": "จำนวน:", "size": "sm", "color": "#555555" },
-                    { "type": "text", "text": tx.qty + " ชิ้น", "size": "sm", "weight": "bold", "align": "right" }
-                  ]
-                },
-                {
-                  "type": "box",
-                  "layout": "horizontal",
-                  "contents": [
-                    { "type": "text", "text": "คงคลังล่าสุด:", "size": "sm", "color": "#555555" },
-                    { "type": "text", "text": remainingStock + " ชิ้น", "size": "sm", "weight": "bold", "color": remainingStock <= 5 ? "#ef4444" : "#22c55e", "align": "right" }
-                  ]
-                },
-                tx.eqSerial ? {
-                  "type": "box",
-                  "layout": "horizontal",
-                  "contents": [
-                    { "type": "text", "text": "ซีเรียลเครื่องซ่อม:", "size": "sm", "color": "#555555" },
-                    { "type": "text", "text": tx.eqSerial, "size": "sm", "align": "right" }
-                  ]
-                } : { "type": "filler" },
-                {
-                  "type": "box",
-                  "layout": "horizontal",
-                  "contents": [
-                    { "type": "text", "text": "ช่างเทคนิค:", "size": "sm", "color": "#555555" },
-                    { "type": "text", "text": tx.operator, "size": "sm", "align": "right" }
-                  ]
-                }
-              ]
+              "contents": detailContents
             }
           ]
         }
