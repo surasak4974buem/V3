@@ -4373,14 +4373,17 @@ function sendLineNotify(flexMessage, token, groupId) {
       document.getElementById("metric-expired-count").innerText = expiredCount;
 
       const lowStockCard = document.getElementById("metric-low-stock-card");
-      if (lowStockCount > 0) lowStockCard.classList.add("danger");
-      else lowStockCard.classList.remove("danger");
+      if (lowStockCard) {
+        if (lowStockCount > 0) lowStockCard.classList.add("danger");
+        else lowStockCard.classList.remove("danger");
+      }
 
       const expiredCard = document.getElementById("metric-expired-card");
-      if (expiredCount > 0) expiredCard.style.borderLeftColor = "var(--danger)";
+      if (expiredCard && expiredCount > 0) expiredCard.style.borderLeftColor = "var(--danger)";
 
+      const totalValueEl = document.getElementById("metric-total-value");
       const totalValue = parts.reduce((sum, p) => sum + (p.unitPrice * p.inStock), 0);
-      document.getElementById("metric-total-value").innerText = "฿" + totalValue.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (totalValueEl) totalValueEl.innerText = "฿" + totalValue.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
       renderDashboardAlertsTable();
       drawDashboardCharts();
@@ -4388,6 +4391,7 @@ function sendLineNotify(flexMessage, token, groupId) {
 
     function renderDashboardAlertsTable() {
       const tbody = document.querySelector("#dashboard-alerts-table tbody");
+      if (!tbody) return;
       tbody.innerHTML = "";
 
       const alertParts = parts.filter(p => {
