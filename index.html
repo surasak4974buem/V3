@@ -4338,6 +4338,13 @@ function sendLineNotify(flexMessage, token, groupId) {
       });
     }
 
+    function formatThaiDate(dateStr) {
+      if (!dateStr) return "-";
+      const d = new Date(dateStr + "T00:00:00");
+      if (isNaN(d)) return dateStr;
+      return d.toLocaleDateString("th-TH"); // รูปแบบเดียวกับ Ledger เช่น 13/6/2569
+    }
+
     function getExpiryState(expiryStr) {
       const today = new Date();
       const expiryDate = new Date(expiryStr);
@@ -5168,7 +5175,7 @@ function sendLineNotify(flexMessage, token, groupId) {
           </td>
           <td><strong>฿${p.unitPrice.toLocaleString("th-TH")}</strong></td>
           <td>
-            <span class="badge ${expiryState.class}">${p.expiryDate}</span>
+            <span class="badge ${expiryState.class}">${formatThaiDate(p.expiryDate)}</span>
           </td>
           <td>
             <div style="display: flex; gap: 8px;">
@@ -5207,7 +5214,7 @@ function sendLineNotify(flexMessage, token, groupId) {
 
       document.getElementById("modal-sc-price").innerText = `฿${part.unitPrice.toLocaleString("th-TH")}`;
       document.getElementById("modal-sc-purchase").innerText = part.purchaseDate;
-      document.getElementById("modal-sc-expiry").innerText = part.expiryDate;
+      document.getElementById("modal-sc-expiry").innerText = formatThaiDate(part.expiryDate);
       document.getElementById("modal-sc-leadtime").innerText = `${part.leadTime} วัน`;
       document.getElementById("modal-sc-freq").innerText = `${part.repairFreq} ครั้ง/ปี`;
       document.getElementById("modal-sc-supplier").innerText = `${part.supplierName} (โทร: ${part.supplierContact})`;
