@@ -6813,29 +6813,6 @@ function sendLineNotify(flexMessage, token, groupId) {
       persistState();
     }
 
-    function saveBudgetSettings() {
-      // Check admin permission
-      if (!currentUser || currentUser.role !== "Admin") {
-        showToast("ข้อผิดพลาด", "ขออภัย สิทธิ์ของคุณไม่สามารถแก้ไขงบประมาณได้", "danger");
-        return;
-      }
-      
-      const b1a = parseFloat(document.getElementById("settings-budget-proj1-catA").value) || 0;
-      const b1b = parseFloat(document.getElementById("settings-budget-proj1-catB").value) || 0;
-      const b2a = parseFloat(document.getElementById("settings-budget-proj2-catA").value) || 0;
-      const b2b = parseFloat(document.getElementById("settings-budget-proj2-catB").value) || 0;
-
-      settings.budgetProj1CatA = b1a;
-      settings.budgetProj1CatB = b1b;
-      settings.budgetProj2CatA = b2a;
-      settings.budgetProj2CatB = b2b;
-
-      localStorage.setItem("nkp_parts_settings", JSON.stringify(settings));
-      showToast("บันทึกงบประมาณแล้ว", "อัปเดตวงเงินงบประมาณรายโครงการและประเภทเรียบร้อย", "success");
-      updateDashboard();
-      persistState();
-    }
-
     function sendLineNotification(tx, remainingStock) {
       if (!settings.lineToggle) {
         console.log("LINE Notification omitted: Toggle is OFF.", tx);
