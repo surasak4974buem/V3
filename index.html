@@ -4340,9 +4340,9 @@ function sendLineNotify(flexMessage, token, groupId) {
 
     function formatThaiDate(dateStr) {
       if (!dateStr) return "-";
-      const d = new Date(dateStr + "T00:00:00");
-      if (isNaN(d)) return dateStr;
-      return d.toLocaleDateString("th-TH"); // รูปแบบเดียวกับ Ledger เช่น 13/6/2569
+      const d = new Date(dateStr); // รองรับทั้ง "2027-12-04" และ "2027-12-03T17:00:00.000Z" (จาก Sheets pull)
+      if (isNaN(d)) return String(dateStr);
+      return d.toLocaleDateString("th-TH"); // เช่น 4/12/2570
     }
 
     function getExpiryState(expiryStr) {
