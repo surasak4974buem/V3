@@ -1018,10 +1018,13 @@
       });
 
       // 2. Render active analysis chart
+      const _cChart = document.getElementById("consumptionChart");
+      const _tChart = document.getElementById("tscEvChart");
+      const _cFilters = document.getElementById("consumption-time-filters");
       if (activeAnalysisTab === "consumption") {
-        document.getElementById("consumptionChart").style.display = "block";
-        document.getElementById("tscEvChart").style.display = "none";
-        document.getElementById("consumption-time-filters").style.display = "flex";
+        if (_cChart) _cChart.style.display = "block";
+        if (_tChart) _tChart.style.display = "none";
+        if (_cFilters) _cFilters.style.display = "flex";
 
         const now = new Date();
         let filteredTx = [];
@@ -1160,9 +1163,9 @@
         });
       } else {
         // TSC / EV Analyzer
-        document.getElementById("consumptionChart").style.display = "none";
-        document.getElementById("tscEvChart").style.display = "block";
-        document.getElementById("consumption-time-filters").style.display = "none";
+        if (_cChart) _cChart.style.display = "none";
+        if (_tChart) _tChart.style.display = "block";
+        if (_cFilters) _cFilters.style.display = "none";
 
         const serviceCosts = {};
         transactions.filter(t => t.type === "Issue" && t.eqSerial).forEach(t => {
