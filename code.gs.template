@@ -1,0 +1,184 @@
+// ============================================================
+// Google Apps Script — NKP Medical Spare Parts System V3
+// คัดลอกโค้ดทั้งหมดนี้ไปวางใน Apps Script ของ Google Sheets
+// Extensions → Apps Script → วาง → Save → Deploy → Web App
+// ============================================================
+// ⚠️ ไฟล์นี้ไม่มี credentials — ค่า token/groupId รับมาจาก
+//    Admin ที่กรอกผ่าน UI ของระบบ (เก็บใน localStorage)
+// ============================================================
+
+function doPost(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var data = JSON.parse(e.postData.contents);
+
+  // ── 1. LINE Webhook: บันทึก Group ID / User ID ──────────────────────────
+  if (data.events && data.events.length > 0) {
+    try {
+      var event = data.events[0];
+      var source = event.source || {};
+      var sourceType = source.type;
+      var sourceId = sourceType === "group" ? source.groupId
+                   : sourceType === "room"  ? source.roomId
+                   : source.userId;
+      var messageText = (event.message && event.message.type === "text") ? event.message.text : "";
+
+      var idSheet = ss.getSheetByName("LINE_IDs") || ss.insertSheet("LINE_IDs");
+      if (idSheet.getLastRow() === 0) {
+        idSheet.appendRow(["วันเวลา", "ประเภทห้องแชต", "ID (นำไปกรอกในช่องตั้งค่า)", "ข้อความล่าสุด"]);
+      }
+      var formattedDate = Utilities.formatDate(new Date(), "Asia/Bangkok", "d/M/yyyy, HH:mm:ss");
+      var lastRow = idSheet.getLastRow();
+      var isDuplicate = lastRow > 1 && idSheet.getRange(lastRow, 3).getValue() === sourceId;
+      if (isDuplicate) {
+        idSheet.getRange(lastRow, 1).setValue(formattedDate);
+        idSheet.getRange(lastRow, 4).setValue(messageText);
+      } else {
+        idSheet.appendRow([formattedDate, sourceType, sourceId, messageText]);
+      }
+      console.log("LINE Webhook logged: type=" + sourceType + ", id=" + sourceId);
+    } catch (err) {
+      console.log("Webhook error: " + err.toString());
+    }
+    return ContentService.createTextOutput(JSON.stringify({ status: "webhook_logged" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // ── 2. Sync ข้อมูลคลัง ──────────────────────────────────────────────────
+  if (data.action === "sync") {
+    var partsSheet = ss.getSheetByName("Parts") || ss.insertSheet("Parts");
+    partsSheet.clear();
+    if (data.parts && data.parts.length > 0) {
+      var partsHeaders = ["code","name","description","manufacturer","equipmentModels",
+        "inStock","unitPrice","minStock","maxStock","reorderPoint","reorderQty",
+        "location","supplierName","supplierContact","purchaseDate","expiryDate",
+        "leadTime","repairFreq","abcClass","totalValue"];
+      partsSheet.appendRow(partsHeaders);
+      partsSheet.getRange(2,1,data.parts.length,partsHeaders.length).setValues(
+        data.parts.map(function(p){ return partsHeaders.map(function(h){
+          var v=p[h]; if(v===undefined||v===null)return"";
+          return typeof v==="object"?JSON.stringify(v):v; }); }));
+    }
+
+    var txSheet = ss.getSheetByName("Transactions") || ss.insertSheet("Transactions");
+    txSheet.clear();
+    if (data.transactions && data.transactions.length > 0) {
+      var txHeaders = ["id","timestamp","type","partCode","partName","qty","refDoc",
+        "repairNo","dept","operator","operatorRole","details","cost",
+        "eqSerial","eqModel","maintenanceType","borrowStatus","borrowDueDate"];
+      txSheet.appendRow(txHeaders);
+      txSheet.getRange(2,1,data.transactions.length,txHeaders.length).setValues(
+        data.transactions.map(function(t){ return txHeaders.map(function(h){
+          var v=t[h]; if(v===undefined||v===null)return"";
+          return typeof v==="object"?JSON.stringify(v):v; }); }));
+    }
+
+    var usersSheet = ss.getSheetByName("Users") || ss.insertSheet("Users");
+    usersSheet.clear();
+    if (data.users && data.users.length > 0) {
+      var usersHeaders = ["realName","password","role","status","loginCount"];
+      usersSheet.appendRow(usersHeaders);
+      usersSheet.getRange(2,1,data.users.length,usersHeaders.length).setValues(
+        data.users.map(function(u){ return usersHeaders.map(function(h){
+          var v=u[h]; if(v===undefined||v===null)return"";
+          return typeof v==="object"?JSON.stringify(v):v; }); }));
+    }
+
+    var pmSheet = ss.getSheetByName("PM_Plans") || ss.insertSheet("PM_Plans");
+    pmSheet.clear();
+    if (data.pmPlans && data.pmPlans.length > 0) {
+      var pmHeaders = ["id","name","eqModel","frequency","scheduledDate","assignedTech","linkedParts"];
+      pmSheet.appendRow(pmHeaders);
+      pmSheet.getRange(2,1,data.pmPlans.length,pmHeaders.length).setValues(
+        data.pmPlans.map(function(pm){ return pmHeaders.map(function(h){
+          var v=pm[h]; if(v===undefined||v===null)return"";
+          return typeof v==="object"?JSON.stringify(v):v; }); }));
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // ── 3. LINE Notify ────────────────────────────────────────────────────────
+  if (data.action === "notify") {
+    if (!data.token || !data.groupId) {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "error",
+        error: "token และ groupId จำเป็นต้องกรอกในหน้า ตั้งค่า → LINE ก่อนใช้งาน"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var lineResult = sendLineMessage(data.message, data.token, data.groupId);
+
+    try {
+      var logSheet = ss.getSheetByName("LINE_Logs") || ss.insertSheet("LINE_Logs");
+      if (logSheet.getLastRow() === 0) {
+        logSheet.appendRow(["วันเวลา","ผู้รับ (Group/User ID)","ผลการทำงาน","รายละเอียดข้อความ"]);
+      }
+      var statusText = (lineResult.indexOf("sentMessages") !== -1) ? "ส่งสำเร็จ" : "ล้มเหลว: " + lineResult;
+      var logDate = Utilities.formatDate(new Date(), "Asia/Bangkok", "d/M/yyyy, HH:mm:ss");
+      logSheet.insertRowBefore(2);
+      logSheet.getRange(2,1,1,4).setValues([[logDate, data.groupId, statusText, JSON.stringify(data.message)]]);
+    } catch (err) { console.log("Log error: " + err.toString()); }
+
+    return ContentService.createTextOutput(JSON.stringify({ status: "sent", result: lineResult }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var result = {};
+  var sheetNames = ["Parts","Transactions","Users","PM_Plans"];
+  var resultKeys = ["parts","transactions","users","pmPlans"];
+  sheetNames.forEach(function(name, i) {
+    var sheet = ss.getSheetByName(name);
+    if (sheet) result[resultKeys[i]] = getSheetDataJson(sheet);
+  });
+  return ContentService.createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function resetDatabase() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var cleared = [];
+  ["Parts","Transactions"].forEach(function(name) {
+    var sheet = ss.getSheetByName(name);
+    if (sheet) { sheet.clear(); cleared.push(name); }
+  });
+  Logger.log("รีเซ็ตฐานข้อมูลเรียบร้อย: " + (cleared.join(", ") || "ไม่พบชีต"));
+}
+
+function getSheetDataJson(sheet) {
+  var rows = sheet.getDataRange().getValues();
+  if (rows.length < 2) return [];
+  var headers = rows[0];
+  return rows.slice(1).map(function(row) {
+    var obj = {};
+    headers.forEach(function(h, j) {
+      var v = row[j];
+      if (typeof v === "string" && (v.indexOf("[") === 0 || v.indexOf("{") === 0)) {
+        try { v = JSON.parse(v); } catch(e) {}
+      }
+      obj[h] = v;
+    });
+    return obj;
+  });
+}
+
+function sendLineMessage(flexMessage, token, groupId) {
+  var options = {
+    method: "post",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+    payload: JSON.stringify({ to: groupId, messages: [{ type: "flex",
+      altText: "🚨 แจ้งเตือนการทำรายการคลังอะไหล่เครื่องมือแพทย์ รพ.นครพิงค์",
+      contents: flexMessage }] }),
+    muteHttpExceptions: true
+  };
+  try {
+    var r = UrlFetchApp.fetch("https://api.line.me/v2/bot/message/push", options);
+    console.log("LINE " + r.getResponseCode() + ": " + r.getContentText());
+    return r.getContentText();
+  } catch (err) {
+    return JSON.stringify({ error: err.toString() });
+  }
+}

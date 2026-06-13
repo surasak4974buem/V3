@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>คู่มือการใช้งาน — ระบบบริหารคลังอะไหล่เครื่องมือแพทย์ รพ.นครพิงค์ V3</title>
+<style>
+  :root {
+    --primary: #14b8a6;
+    --secondary: #8b5cf6;
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --border: #334155;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', 'Noto Sans Thai', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+  /* ─── Layout ─── */
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 280px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
+  }
+  .sidebar-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .sidebar-logo h2 { font-size: 0.95rem; color: var(--primary); font-weight: 700; }
+  .sidebar-logo p { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+  .nav-section { padding: 8px 20px 4px; font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  .nav-item { display: block; padding: 8px 20px; color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: all 0.2s; border-left: 3px solid transparent; }
+  .nav-item:hover, .nav-item.active { color: var(--primary); background: rgba(20,184,166,0.08); border-left-color: var(--primary); }
+  .content { margin-left: 280px; padding: 40px 48px; max-width: 1000px; }
+  /* ─── Typography ─── */
+  h1 { font-size: 2rem; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+  h2 { font-size: 1.4rem; font-weight: 700; color: var(--primary); margin: 48px 0 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+  h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 28px 0 12px; }
+  h4 { font-size: 0.95rem; font-weight: 600; color: var(--warning); margin: 20px 0 8px; }
+  p { margin-bottom: 12px; color: #cbd5e1; }
+  strong { color: var(--text); }
+  ul, ol { margin: 10px 0 14px 24px; color: #cbd5e1; }
+  li { margin-bottom: 6px; }
+  code { background: rgba(20,184,166,0.12); color: var(--primary); padding: 2px 7px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 0.85rem; }
+  pre { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow-x: auto; margin: 14px 0; }
+  pre code { background: none; color: #7dd3fc; padding: 0; font-size: 0.82rem; }
+  /* ─── Components ─── */
+  .hero {
+    background: linear-gradient(135deg, rgba(20,184,166,0.15), rgba(139,92,246,0.1));
+    border: 1px solid rgba(20,184,166,0.3);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 40px;
+  }
+  .hero .subtitle { color: var(--muted); margin: 8px 0 16px; font-size: 0.9rem; }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+  .badge-teal { background: rgba(20,184,166,0.2); color: var(--primary); border: 1px solid rgba(20,184,166,0.4); }
+  .badge-purple { background: rgba(139,92,246,0.2); color: #a78bfa; border: 1px solid rgba(139,92,246,0.4); }
+  .badge-green { background: rgba(34,197,94,0.2); color: var(--success); border: 1px solid rgba(34,197,94,0.4); }
+  .badge-orange { background: rgba(249,115,22,0.2); color: #fb923c; border: 1px solid rgba(249,115,22,0.4); }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .card-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+  }
+  .step-num {
+    min-width: 32px; height: 32px;
+    background: var(--primary);
+    color: #0f172a;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.85rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-body h4 { margin: 0 0 4px; color: var(--text); font-size: 0.95rem; }
+  .step-body p { margin: 0; font-size: 0.88rem; }
+  .alert {
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 0.88rem;
+    border-left: 4px solid;
+  }
+  .alert-warning { background: rgba(245,158,11,0.1); border-color: var(--warning); color: #fcd34d; }
+  .alert-info { background: rgba(20,184,166,0.08); border-color: var(--primary); color: #5eead4; }
+  .alert-danger { background: rgba(239,68,68,0.1); border-color: var(--danger); color: #fca5a5; }
+  .alert-success { background: rgba(34,197,94,0.1); border-color: var(--success); color: #86efac; }
+  .table-wrap { overflow-x: auto; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th { background: rgba(20,184,166,0.15); color: var(--primary); padding: 10px 14px; text-align: left; font-weight: 600; border: 1px solid var(--border); }
+  td { padding: 9px 14px; border: 1px solid var(--border); color: #cbd5e1; vertical-align: top; }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin: 1px; }
+  .tag-red { background: rgba(239,68,68,0.2); color: #fca5a5; }
+  .tag-green { background: rgba(34,197,94,0.2); color: #86efac; }
+  .tag-blue { background: rgba(59,130,246,0.2); color: #93c5fd; }
+  .tag-orange { background: rgba(249,115,22,0.2); color: #fdba74; }
+  .tag-teal { background: rgba(20,184,166,0.2); color: #5eead4; }
+  .tag-purple { background: rgba(139,92,246,0.2); color: #c4b5fd; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .update-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px; border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+  }
+  .update-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .update-body strong { color: var(--text); font-size: 0.9rem; }
+  .update-body p { font-size: 0.83rem; color: var(--muted); margin: 2px 0 0; }
+  section { margin-bottom: 60px; }
+  @media(max-width:768px) { .sidebar { display:none; } .content { margin-left:0; padding: 24px 20px; } .two-col { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ══ SIDEBAR ══ -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <h2>📋 คู่มือระบบ NKP V3</h2>
+    <p>เวอร์ชัน 1.0 — 13 มิถุนายน 2569</p>
+  </div>
+  <span class="nav-section">เริ่มต้น</span>
+  <a class="nav-item" href="#overview">ภาพรวมระบบ</a>
+  <a class="nav-item" href="#updates">การอัพเดทล่าสุด</a>
+  <a class="nav-item" href="#setup">การติดตั้ง</a>
+  <span class="nav-section">การใช้งาน</span>
+  <a class="nav-item" href="#login">เข้าสู่ระบบ</a>
+  <a class="nav-item" href="#dashboard">แดชบอร์ด</a>
+  <a class="nav-item" href="#inventory">คลังอะไหล่</a>
+  <a class="nav-item" href="#transactions">บันทึกรายการ</a>
+  <a class="nav-item" href="#pm">แผน PM</a>
+  <a class="nav-item" href="#reports">รายงาน / ใบเบิก</a>
+  <a class="nav-item" href="#users">จัดการผู้ใช้</a>
+  <a class="nav-item" href="#settings">ตั้งค่าระบบ</a>
+  <span class="nav-section">การเชื่อมต่อ</span>
+  <a class="nav-item" href="#cloud">Cloud Sync (GAS)</a>
+  <a class="nav-item" href="#line">LINE OA แจ้งเตือน</a>
+  <span class="nav-section">อ้างอิง</span>
+  <a class="nav-item" href="#roles">สิทธิ์ผู้ใช้</a>
+  <a class="nav-item" href="#troubleshoot">แก้ปัญหาพบบ่อย</a>
+</nav>
+
+<!-- ══ CONTENT ══ -->
+<main class="content">
+
+  <!-- ─── HERO ─── -->
+  <div class="hero">
+    <h1>🏥 คู่มือการใช้งาน</h1>
+    <p class="subtitle">ระบบบริหารจัดการคลังอะไหล่เครื่องมือแพทย์ — ศูนย์เครื่องมือแพทย์ โรงพยาบาลนครพิงค์</p>
+    <p style="color:#94a3b8; font-size:0.85rem;">อิงมาตรฐาน SMM 07-1:2024 | พัฒนาด้วย Static SPA + Google Apps Script + LINE OA</p>
+    <div class="badge-row">
+      <span class="badge badge-teal">V3 — Version 1</span>
+      <span class="badge badge-purple">13 มิถุนายน 2569</span>
+      <span class="badge badge-green">GitHub Pages</span>
+      <span class="badge badge-orange">LINE OA Integration</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <section id="overview">
+    <h2>1. ภาพรวมระบบ</h2>
+    <p>ระบบนี้เป็น <strong>Single-Page Application (SPA)</strong> ทำงานบนเบราว์เซอร์โดยไม่ต้องติดตั้งโปรแกรมใดเพิ่มเติม โฮสต์บน GitHub Pages เข้าถึงได้จากทุกอุปกรณ์</p>
+
+    <div class="two-col" style="margin-top:20px;">
+      <div class="card">
+        <div class="card-title">🗄️ ฐานข้อมูล</div>
+        <ul>
+          <li>เก็บข้อมูลใน <code>localStorage</code> ของเบราว์เซอร์</li>
+          <li>ซิงก์ขึ้น Google Sheets ผ่าน Apps Script</li>
+          <li>ดึงข้อมูลกลับจาก Sheet ได้ (Pull)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">🔔 การแจ้งเตือน</div>
+        <ul>
+          <li>LINE OA Messaging API</li>
+          <li>Flex Message พร้อมรายละเอียด transaction</li>
+          <li>แจ้งเตือนทุกประเภทรายการ</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>หน้า</th><th>หน้าที่</th><th>สิทธิ์</th></tr>
+        <tr><td><strong>แดชบอร์ด</strong></td><td>สรุปสต๊อก, แจ้งเตือนของหมด/ใกล้หมดอายุ, กราฟ</td><td>ทุกคน</td></tr>
+        <tr><td><strong>คลังอะไหล่</strong></td><td>รายการอะไหล่ทั้งหมด, เพิ่ม/แก้ไข/ลบ</td><td>ทุกคน (แก้ไข: Admin)</td></tr>
+        <tr><td><strong>บันทึกรายการ</strong></td><td>รับ/เบิก/ยืม/คืน/ปรับปรุงสต๊อก</td><td>ทุกคน</td></tr>
+        <tr><td><strong>แผน PM</strong></td><td>วางแผนบำรุงรักษา, ติดตามสถานะ</td><td>ทุกคน (สร้าง: Admin)</td></tr>
+        <tr><td><strong>รายงาน / ใบเบิก</strong></td><td>ติดตามการจัดซื้อ, สร้างใบเบิกงบประมาณ</td><td>ทุกคน</td></tr>
+        <tr><td><strong>จัดการผู้ใช้</strong></td><td>เพิ่ม/แก้ไข/ลบ User, กำหนดสิทธิ์</td><td>Admin เท่านั้น</td></tr>
+        <tr><td><strong>ตั้งค่า</strong></td><td>GAS URL, LINE Token, รหัสผ่าน</td><td>Admin เท่านั้น</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════ -->
+  <section id="updates">
+    <h2>2. สรุปการอัพเดทล่าสุด (V3 — 13/06/2569)</h2>
+
+    <div class="update-item">
+      <div class="update-icon">🔑</div>
+      <div class="update-body">
+        <strong>LINE Token + Group ID บันทึกผ่าน UI (Admin-only)</strong>
+        <p>ไม่ต้อง hardcode credentials ใน code.gs อีกต่อไป — Admin กรอก Token และ Group ID ในหน้าตั้งค่าได้เลย ระบบบันทึกลง localStorage เหมือนกับ GAS URL</p>
+      </div>
+    </div>
+    <div class="update-item">
+      <div class="update-icon">🛡️</div>
+      <div class="update-body">
+        <strong>Admin-only Permission สำหรับการตั้งค่าระบบ</strong>
+        <p>เพิ่ม permission check — เฉพาะ Admin เท่านั้นที่กด "บันทึกการตั้งค่า" ได้ (GAS URL, LINE Token, รหัสผ่าน) ป้องกัน User ทั่วไปแก้ไขค่าสำคัญ</p>
+      </div>
+    </div>
+    <div class="update-item">
+      <div class="update-icon">🌐</div>
+      <div class="update-body">
+        <strong>แก้ CORS "Failed to fetch"</strong>
+        <p>เปลี่ยน Content-Type จาก <code>application/json</code> เป็น <code>text/plain</code> ในทุก POST request ไป GAS — ป้องกัน CORS preflight ที่ GAS ไม่รองรับ</p>
+      </div>
+    </div>
+    <div class="update-item">
+      <div class="update-icon">🔔</div>
+      <div class="update-body">
+        <strong>LINE แจ้งเตือนทำงานอัตโนมัติ</strong>
+        <p>เปิด Toggle + กรอก Token + Group ID → ระบบส่ง LINE Flex Message ทุกครั้งที่มีรายการ Receive/Issue/Borrow/Return/Adjust</p>
+      </div>
+    </div>
+    <div class="update-item">
+      <div class="update-icon">📋</div>
+      <div class="update-body">
+        <strong>code.gs ใหม่ — ไม่มี hardcode credentials</strong>
+        <p>GAS รับ token/groupId จาก client request แทนค่า hardcode เพิ่มความยืดหยุ่น ช่างเทคนิคแต่ละคนตั้งค่า LINE ของตัวเองได้</p>
+      </div>
+    </div>
+    <div class="update-item">
+      <div class="update-icon">🐛</div>
+      <div class="update-body">
+        <strong>แก้ null reference crashes ทั้งหมด</strong>
+        <p>เพิ่ม null guards ใน handleTxTypeChange, updateDashboard, renderDashboardAlertsTable, drawDashboardCharts, modal-sc-stock, memo-chk-other-text</p>
+      </div>
+    </div>
+    <div class="update-item">
+      <div class="update-icon">🗃️</div>
+      <div class="update-body">
+        <strong>DATA_VERSION gate "v3-clean-2026-06-13"</strong>
+        <p>ล้าง localStorage เก่าอัตโนมัติเมื่อเปิดระบบครั้งแรก ป้องกันข้อมูล mock จากเวอร์ชันก่อนหน้ารบกวน</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════ -->
+  <section id="setup">
+    <h2>3. การติดตั้งและตั้งค่าครั้งแรก</h2>
+
+    <h3>3.1 ติดตั้ง GitHub Pages</h3>
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Fork หรือ Clone repo</h4><p>ไปที่ <code>github.com/surasak4974buem/V3</code> → กด Code → Download ZIP หรือ Clone</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>เปิด GitHub Pages</h4><p>Settings → Pages → Source: Deploy from branch → เลือก <code>main</code> → Save</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>เข้าใช้งาน</h4><p>URL จะเป็น <code>https://[username].github.io/V3/</code></p></div></div>
+
+    <h3>3.2 ตั้งค่า Google Apps Script</h3>
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>สร้าง Google Sheets ใหม่</h4><p>เปิด Google Drive → New → Google Sheets → ตั้งชื่อ (เช่น NKP-Medparts-DB)</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>เปิด Apps Script</h4><p>เมนู Extensions → Apps Script → วางโค้ดจาก <code>code.gs.template</code> ทั้งหมด → Save</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Deploy เป็น Web App</h4><p>Deploy → New deployment → Type: Web app → Execute as: Me → Who has access: Anyone → Deploy → Copy URL</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><h4>ใส่ URL ในระบบ</h4><p>Login Admin → หน้าตั้งค่า → วาง URL ในช่อง "Google Apps Script Web App URL" → บันทึก</p></div></div>
+
+    <div class="alert alert-warning">
+      ⚠️ ทุกครั้งที่แก้ไข code.gs ต้อง Deploy ใหม่ (New deployment) เพื่อให้การเปลี่ยนแปลงมีผล
+    </div>
+
+    <h3>3.3 ตั้งค่า LINE OA</h3>
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>สร้าง LINE OA Channel</h4><p>เข้า <code>developers.line.biz</code> → Create a Provider → Create a new channel → Messaging API</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>ออก Channel Access Token</h4><p>แท็บ Messaging API → Channel access token → กด Issue → Copy token</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>ตั้ง Webhook URL</h4><p>Webhook URL = GAS Web App URL ที่ deploy ไว้ → Verify → ควรขึ้น Success</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><h4>หา User ID / Group ID</h4><p>Add LINE OA เป็นเพื่อน → ส่งข้อความหา bot → ดู ID ที่บันทึกในชีต LINE_IDs ของ Google Sheets</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><h4>กรอกในระบบ</h4><p>Login Admin → หน้าตั้งค่า → กรอก LINE Token + Group ID → บันทึก → ทดสอบ</p></div></div>
+  </section>
+
+  <!-- ════════════════════════════════════════ -->
+  <section id="login">
+    <h2>4. การเข้าสู่ระบบ</h2>
+    <div class="card">
+      <div class="card-title">🔐 หน้า Login</div>
+      <p>ระบบจะแสดงหน้า Login ก่อนเสมอเมื่อเปิดครั้งแรก หรือหลัง Logout</p>
+      <ul>
+        <li>เลือก <strong>ชื่อผู้ใช้</strong> จาก dropdown</li>
+        <li>กรอก <strong>รหัสผ่าน</strong></li>
+        <li>กด <strong>เข้าสู่ระบบ</strong></li>
+      </ul>
+    </div>
+    <div class="alert alert-info">
+      💡 รหัสผ่านเริ่มต้นของ Admin (Default) คือ <code>NKP-medparts-2026</code> — ควรเปลี่ยนหลังตั้งค่าครั้งแรก
+    </div>
+    <h3>บัญชีผู้ใช้เริ่มต้น</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>ชื่อ</th><th>รหัสผ่านเริ่มต้น</th><th>ระดับสิทธิ์</th></tr>
+        <tr><td>Admin (Default)</td><td><code>NKP-medparts-2026</code></td><td><span class="tag tag-red">Admin</span></td></tr>
+        <tr><td>ช่างเทคนิค 01–05</td><td><code>tech2024</code></td><td><span class="tag tag-blue">Technician</span></td></tr>
+        <tr><td>บัญชี / การเงิน</td><td><code>finance2024</code></td><td><span class="tag tag-green">Viewer</span></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════ -->
+  <section id="dashboard">
+    <h2>5. แดชบอร์ด (Dashboard)</h2>
+    <p>หน้าแรกหลัง Login แสดงภาพรวมสถานะคลังอะไหล่ทั้งหมด</p>
+
+    <h3>5.1 การ์ดสรุป (KPI Cards)</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>การ์ด</th><th>แสดงข้อมูล</th><th>สีเตือน</th></tr>
+        <tr><td>รายการอะไหล่ทั้งหมด</td><td>จำนวน SKU ในคลัง</td><td>ปกติ: ฟ้า</td></tr>
+        <tr><td>มูลค่าคลังรวม</td><td>unitPrice × inStock ทุกรายการ</td><td>ปกติ: ม่วง</td></tr>
+        <tr><td>รายการสต๊อกต่ำ</td><td>จำนวน SKU ที่ inStock ≤ reorderPoint</td><td>แดงนีออน เมื่อมี</td></tr>
+        <tr><td>ใกล้หมดอายุ</td><td>SKU ที่ expiryDate ≤ 90 วัน</td><td>ส้มนีออน เมื่อมี</td></tr>
+      </table>
+    </div>
+
+    <h3>5.2 ตารางแจ้งเตือน</h3>
+    <p>แสดงรายการที่ <strong>สต๊อกต่ำกว่า Reorder Point</strong> หรือ <strong>หมดอายุภายใน 90 วัน</strong> พร้อมปุ่มลัด "เบิก/รับ" ได้เลย</p>
+
+    <h3>5.3 กราฟ</h3>
+    <ul>
+      <li><strong>Transaction History Chart</strong> — แสดงจำนวนรายการ Receive/Issue/Borrow/Return รายวัน</li>
+      <li><strong>ABC Analysis Chart</strong> — แสดงสัดส่วนมูลค่าอะไหล่ตามคลาส A/B/C</li>
+    </ul>
+
+    <h3>5.4 Quick Actions</h3>
+    <p>ปุ่มลัดจากแดชบอร์ด: <strong>รับเข้าคลัง</strong> | <strong>เบิกอะไหล่</strong> | <strong>ซิงก์คลาวด์</strong> | <strong>ดึงข้อมูลจากคลาวด์</strong></p>
+  </section>
+
+  <!-- ════════════════════════════════════════ -->
+  <section id="inventory">
+    <h2>6. คลังอะไหล่ (Inventory)</h2>
+    <p>หน้าแสดงรายการอะไหล่ทั้งหมดในคลัง พร้อมข้อมูลครบถ้วน</p>
+
+    <h3>6.1 ดูรายการอะไหล่</h3>
+    <ul>
+      <li>ค้นหาด้วย <strong>ชื่อ/รหัส/ผู้ผลิต/รุ่นเครื่อง</strong></li>
+      <li>กรองตาม <strong>สถานะสต๊อก</strong> (ปกติ/ต่ำ/หมด) หรือ <strong>คลาส ABC</strong></li>
+      <li>กดชื่ออะไหล่เพื่อดูรายละเอียดแบบขยาย</li>
+    </ul>
+
+    <h3>6.2 เพิ่มอะไหล่ใหม่ (Admin เท่านั้น)</h3>
+    <div class="card">
+      <div class="card-title">📦 ฟิลด์บังคับ</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>ฟิลด์</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+          <tr><td>รหัสอะไหล่</td><td>Unique code ประจำรายการ</td><td>SR-SPO2-001</td></tr>
+          <tr><td>ชื่ออะไหล่</td><td>ชื่อเต็มพร้อม Part No.</td><td>Adult Finger SpO2 Masimo...</td></tr>
+          <tr><td>ผู้ผลิต</td><td>Brand/Manufacturer</td><td>Masimo</td></tr>
+          <tr><td>ราคาต่อหน่วย (฿)</td><td>ราคาซื้อจริง</td><td>8200.00</td></tr>
+          <tr><td>สต๊อกต่ำสุด / Max</td><td>Min/Max สำหรับ Alert</td><td>5 / 50</td></tr>
+          <tr><td>Reorder Point</td><td>จุดสั่งซื้อซ้ำ</td><td>10</td></tr>
+          <tr><td>Reorder Qty</td><td>จำนวนสั่งซื้อแต่ละครั้ง</td><td>25</td></tr>
+          <tr><td>ที่เก็บ (Location)</td><td>Cabinet/Shelf/Box</td><td>Cabinet A - Shelf 2 - Box 01</td></tr>
+          <tr><td>วันหมดอายุ</td><td>Expiry date</td><td>2027-12-04</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <h3>6.3 ABC Classification</h3>
+    <p>ระบบคำนวณ ABC อัตโนมัติจาก <strong>มูลค่ารวม (unitPrice × inStock)</strong>:</p>
+    <ul>
+      <li><span class="tag tag-red">Class A</span> — มูลค่าสูง top 20% ของรายการ (ควบคุมเข้มงวด)</li>
+      <li><span class="tag tag-orange">Class B</span> — มูลค่าปานกลาง 30% ถัดไป</li>
+      <li><span class="tag tag-green">Class C</span> — มูลค่าต่ำ 50% ที่เหลือ</li>
+    </ul>
+  </section>
+
+  <!-- ════════════════════════════════════════ -->
+  <section id="transactions">
+    <h2>7. บันทึกรายการ (Transactions)</h2>
+    <p>หัวใจหลักของระบบ — บันทึกการเคลื่อนไหวของอะไหล่ทุกประเภท พร้อมส่ง LINE แจ้งเตือนอัตโนมัติ</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>ประเภท</th><th>ความหมาย</th><th>ผล (inStock)</th><th>สี LINE</th></tr>
+        <tr><td><span class="tag tag-green">Receive ➕</span></td><td>รับอะไหล่เข้าคลัง</td><td>+ เพิ่มขึ้น</td><td>เขียว</td></tr>
+        <tr><td><span class="tag tag-red">Issue 📤</span></td><td>เบิกจ่ายอะไหล่ใช้งาน</td><td>− ลดลง</td><td>แดง</td></tr>
+        <tr><td><span class="tag tag-orange">Borrow 🔍</span></td><td>ยืมอะไหล่ทดสอบ (ต้องคืน)</td><td>− ลดลง (ชั่วคราว)</td><td>ส้ม</td></tr>
+        <tr><td><span class="tag tag-teal">Return 📥</span></td><td>คืนอะไหล่กลับคลัง</td><td>+ เพิ่มขึ้น</td><td>เขียวอมฟ้า</td></tr>
+        <tr><td><span class="tag tag-purple">Adjust ⚙️</span></td><td>ปรับยอดสต๊อก (ตรวจนับ)</td><td>ตั้งค่าใหม่</td><td>ม่วง</td></tr>
+      </table>
+    </div>
+
+    <h3>7.1 ขั้นตอนบันทึกรายการ</h3>
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>เลือกประเภทรายการ</h4><p>แท็บ Receive / Issue / Borrow / Return / Adjust ที่ด้านบนฟอร์ม</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>ค้นหาและเลือกอะไหล่</h4><p>พิมพ์ชื่อหรือรหัสในช่องค้นหา → เลือกจากรายการที่ปรากฏ</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>กรอกรายละเอียด</h4><p>จำนวน, เอกสารอ้างอิง, เลขซ่อม (บังคับสำหรับ Issue/Borrow), ซีเรียลเครื่อง (บังคับ), แผนก, หมายเหตุ</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><h4>กด "บันทึกรายการ"</h4><p>ระบบบันทึก → อัปเดต inStock → ส่ง LINE แจ้งเตือน → ซิงก์ Google Sheets</p></div></div>
+
+    <h3>7.2 ฟิลด์สำคัญ</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>ฟิลด์</th><th>บังคับ?</th><th>คำอธิบาย</th></tr>
+        <tr><td>จำนวน</td><td>✅</td><td>จำนวนหน่วยที่เคลื่อนไหว</td></tr>
+        <tr><td>ซีเรียลเครื่องซ่อม</td><td>✅ (Issue/Borrow)</td><td>หมายเลขซีเรียลของอุปกรณ์ที่ใช้อะไหล่</td></tr>
+        <tr><td>เลขซ่อม / Repair No.</td><td>✅ (Issue/Borrow)</td><td>เลขใบงานหรือ Work Order</td></tr>
+        <tr><td>แผนก / หน่วยงาน</td><td>❌</td><td>แผนกผู้รับหรือส่งมอบ</td></tr>
+        <tr><td>เอกสารอ้างอิง</td><td>❌</td><td>เลขใบสั่งซื้อ, ใบ PO</td></tr>
+        <tr><td>หมายเหตุ</td><td>❌</td><td>รายละเอียดเพิ่มเติม</td></tr>
+        <tr><td>วันครบกำหนดคืน</td><td>✅ (Borrow)</td><td>กำหนดวันคืนอะไหล่ที่ยืมไป</td></tr>
+      </table>
+    </div>
+
+    <h3>7.3 ประวัติรายการ</h3>
+    <p>ด้านล่างฟอร์มแสดง Transaction History ย้อนหลังทุกรายการ กรองตามประเภท/วันที่ได้ และ Export เป็น CSV</p>
+  </section>
+
+  <!-- ════════════════════════════════════════ -->
+  <section id="pm">
+    <h2>8. แผนบำรุงรักษาเชิงป้องกัน (PM Plans)</h2>
+    <p>จัดการแผน Preventive Maintenance ของอุปกรณ์แพทย์ที่ใช้อะไหล่ในคลัง</p>
+
+    <h3>8.1 สร้างแผน PM ใหม่</h3>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <tr><th>ฟิลด์</th><th>คำอธิบาย</th></tr>
+          <tr><td>ชื่อแผน</td><td>เช่น "PM ประจำปี Nihon Kohden BSM-3500"</td></tr>
+          <tr><td>รุ่นอุปกรณ์</td><td>เลือกจากรายการอุปกรณ์ในระบบ</td></tr>
+          <tr><td>ความถี่</td><td>รายเดือน / ราย 3 เดือน / ราย 6 เดือน / รายปี</td></tr>
+          <tr><td>วันกำหนด PM</td><td>วันที่นัดทำ PM ครั้งถัดไป</td></tr>
+          <tr><td>ช่างเทคนิคผู้รับผิดชอบ</td><td>เลือกจากรายชื่อ User ในระบบ</td></tr>
+          <tr><td>อะไหล่ที่เกี่ยวข้อง</td><td>ระบุอะไหล่ที่ใช้ในการ PM (ลิงก์กับคลัง)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <h3>8.2 สถานะแผน PM</h3>
+    <ul>
+      <li><span class="tag tag-green">Scheduled</span> — รอดำเนินการตามกำหนด</li>
+      <li><span class="tag tag-orange">Due Soon</span> — ถึงกำหนดภายใน 7 วัน</li>
+      <li><span class="tag tag-red">Overdue</span> — เลยกำหนดแล้ว</li>
+      <li><span class="tag tag-teal">Completed</span> — ดำเนินการเสร็จแล้ว</li>
+    </ul>
+  </section>
+
+  <!-- ════════════════════════════════════════ -->
+  <section id="reports">
+    <h2>9. รายงาน / ใบเบิกงบประมาณ</h2>
+
+    <h3>9.1 Procurement Monitor (ติดตามการจัดซื้อ)</h3>
+    <p>แสดงสถานะงบประมาณแต่ละโครงการ:</p>
+    <ul>
+      <li>โครงการที่ 1: สาย SpO2 Reusable และ Cable/Probe</li>
+      <li>โครงการที่ 2: Extension Cable และสายไฟ</li>
+      <li>Progress bar แสดง % งบที่ใช้แล้ว เทียบกับวงเงินที่ตั้งไว้</li>
+    </ul>
+
+    <h3>9.2 ใบเบิก (Memorandum)</h3>
+    <p>สร้างใบเบิกอุปกรณ์ทางการเพื่อยื่นขออนุมัติงบประมาณ:</p>
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>เพิ่มรายการ</h4><p>กด "+ เพิ่มรายการ" → ค้นหาอะไหล่จากคลัง → ระบุจำนวนและราคา</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>กรอกข้อมูลเอกสาร</h4><p>วัตถุประสงค์, ผู้ขออนุมัติ, วันที่</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Preview และ Print</h4><p>กด Preview เพื่อดูตัวอย่าง → Print (Ctrl+P) เพื่อพิมพ์หรือบันทึก PDF</p></div></div>
+  </section>
+
+  <!-- ════════════════════════════════════════ -->
+  <section id="users">
+    <h2>10. จัดการผู้ใช้งาน (Admin เท่านั้น)</h2>
+
+    <div class="alert alert-warning">⚠️ หน้านี้แสดงเฉพาะ Admin เท่านั้น</div>
+
+    <h3>10.1 เพิ่มผู้ใช้ใหม่</h3>
+    <ul>
+      <li>กด "+ เพิ่มผู้ใช้"</li>
+      <li>กรอก <strong>ชื่อจริง</strong>, <strong>รหัสผ่าน</strong>, <strong>ระดับสิทธิ์</strong></li>
+      <li>กด บันทึก</li>
+    </ul>
+
+    <h3>10.2 ระดับสิทธิ์</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>ระดับ</th><th>ดูข้อมูล</th><th>บันทึกรายการ</th><th>แก้ไขคลัง</th><th>จัดการ User</th><th>ตั้งค่าระบบ</th></tr>
+        <tr><td><span class="tag tag-red">Admin</span></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+        <tr><td><span class="tag tag-blue">Technician</span></td><td>✅</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+        <tr><td><span class="tag tag-green">Viewer</span></td><td>✅</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td></tr>
+      </table>
+    </div>
+
+    <h3>10.3 เปิด/ปิดใช้งาน</h3>
+    <p>Admin สามารถเปลี่ยนสถานะ User เป็น Active/Inactive ได้โดยไม่ต้องลบ — User ที่ Inactive จะ Login ไม่ได้</p>
+  </section>
+
+  <!-- ════════════════════════════════════════ -->
+  <section id="settings">
+    <h2>11. การตั้งค่าระบบ (Admin เท่านั้น)</h2>
+
+    <div class="alert alert-warning">⚠️ ปุ่ม "บันทึกการตั้งค่า" ใช้ได้เฉพาะ Admin เท่านั้น</div>
+
+    <h3>11.1 รหัสผ่านระบบ</h3>
+    <p>เปลี่ยนรหัสผ่านของ Admin (Default) ได้จากช่อง Security Password → กด บันทึกการตั้งค่า</p>
+
+    <h3>11.2 Google Apps Script URL</h3>
+    <p>วาง URL จากการ Deploy GAS เพื่อเชื่อมฐานข้อมูล Google Sheets ระบบจะ:</p>
+    <ul>
+      <li>ซิงก์ข้อมูลขึ้น Sheets ทุกครั้งที่บันทึก Transaction</li>
+      <li>ดึงข้อมูลลงมาเมื่อกด "ดึงข้อมูลจากคลาวด์"</li>
+    </ul>
+
+    <h3>11.3 LINE Integration</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>การตั้งค่า</th><th>คำอธิบาย</th></tr>
+        <tr><td>Toggle เปิด/ปิด</td><td>เปิด = ส่ง LINE ทุก Transaction | ปิด = ไม่ส่ง</td></tr>
+        <tr><td>LINE Channel Access Token</td><td>Token จาก LINE Developers Console (type: password — ซ่อน)</td></tr>
+        <tr><td>LINE Group ID / User ID</td><td>ID ผู้รับข้อความ (ดูจากชีต LINE_IDs)</td></tr>
+      </table>
+    </div>
+    <div class="alert alert-info">
+      💡 Token และ Group ID เก็บใน localStorage ของเครื่องนี้เท่านั้น ไม่ถูกอัปโหลดหรือบันทึกใน GitHub ใดๆ
+    </div>
+
+    <h3>11.4 งบประมาณรายโครงการ</h3>
+    <p>ตั้งวงเงินงบประมาณเริ่มต้นแต่ละโครงการ — ใช้แสดง Progress Bar ในหน้า Procurement Monitor</p>
+  </section>
+
+  <!-- ════════════════════════════════════════ -->
+  <section id="cloud">
+    <h2>12. Cloud Sync (Google Sheets)</h2>
+
+    <h3>12.1 Auto Sync (Push)</h3>
+    <p>ระบบ Push ข้อมูลขึ้น Google Sheets อัตโนมัติทุกครั้งที่:</p>
+    <ul>
+      <li>บันทึก Transaction ใหม่</li>
+      <li>เพิ่ม/แก้ไข/ลบอะไหล่</li>
+      <li>กด "ซิงก์คลาวด์" บนแดชบอร์ด</li>
+    </ul>
+
+    <h3>12.2 Pull จาก Cloud</h3>
+    <p>กด "ดึงข้อมูลจากคลาวด์" เพื่อโหลดข้อมูลล่าสุดจาก Google Sheets มายังเบราว์เซอร์ — ใช้สำหรับซิงก์ข้ามอุปกรณ์</p>
+
+    <h3>12.3 โครงสร้าง Sheet</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Sheet</th><th>ข้อมูล</th></tr>
+        <tr><td>Parts</td><td>รายการอะไหล่ทั้งหมด</td></tr>
+        <tr><td>Transactions</td><td>ประวัติรายการทั้งหมด</td></tr>
+        <tr><td>Users</td><td>บัญชีผู้ใช้และสิทธิ์</td></tr>
+        <tr><td>PM_Plans</td><td>แผน PM ทั้งหมด</td></tr>
+        <tr><td>LINE_Logs</td><td>ประวัติการส่งแจ้งเตือน LINE</td></tr>
+        <tr><td>LINE_IDs</td><td>User/Group ID ที่ส่งข้อความหา bot</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════ -->
+  <section id="line">
+    <h2>13. LINE OA แจ้งเตือน</h2>
+
+    <h3>13.1 เงื่อนไขการส่งแจ้งเตือน</h3>
+    <ul>
+      <li>Toggle LINE เปิดอยู่ ✓</li>
+      <li>กรอก LINE Token ✓</li>
+      <li>กรอก LINE Group ID / User ID ✓</li>
+      <li>กรอก GAS URL ✓</li>
+    </ul>
+
+    <h3>13.2 รูปแบบ Flex Message</h3>
+    <div class="card">
+      <ul>
+        <li>Header — สีตามประเภทรายการ + ชื่อประเภท</li>
+        <li>ชื่ออะไหล่ + รหัส</li>
+        <li>จำนวนที่เคลื่อนไหว</li>
+        <li>คงคลังล่าสุด (สีเขียว = ปกติ, สีแดง = ต่ำ)</li>
+        <li>ซีเรียลเครื่องที่ใช้</li>
+        <li>ชื่อช่างเทคนิค</li>
+      </ul>
+    </div>
+
+    <h3>13.3 สีตามประเภทรายการ</h3>
+    <ul>
+      <li>🟢 <span class="tag tag-green">Receive</span> — เขียว (#22c55e)</li>
+      <li>🔴 <span class="tag tag-red">Issue</span> — แดง (#ef4444)</li>
+      <li>🟠 <span class="tag tag-orange">Borrow</span> — ส้ม (#f97316)</li>
+      <li>🩵 <span class="tag tag-teal">Return/Adjust</span> — เขียวอมฟ้า (#14b8a6)</li>
+    </ul>
+  </section>
+
+  <!-- ════════════════════════════════════════ -->
+  <section id="roles">
+    <h2>14. สรุปสิทธิ์การใช้งาน</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>การกระทำ</th><th>Admin</th><th>Technician</th><th>Viewer</th></tr>
+        <tr><td>เข้าดูข้อมูลทุกหน้า</td><td>✅</td><td>✅</td><td>✅</td></tr>
+        <tr><td>บันทึก Transaction</td><td>✅</td><td>✅</td><td>❌</td></tr>
+        <tr><td>เพิ่ม/แก้ไขอะไหล่</td><td>✅</td><td>❌</td><td>❌</td></tr>
+        <tr><td>สร้าง/แก้ไขแผน PM</td><td>✅</td><td>❌</td><td>❌</td></tr>
+        <tr><td>จัดการ User</td><td>✅</td><td>❌</td><td>❌</td></tr>
+        <tr><td>บันทึกการตั้งค่าระบบ</td><td>✅</td><td>❌</td><td>❌</td></tr>
+        <tr><td>บันทึกงบประมาณ</td><td>✅</td><td>❌</td><td>❌</td></tr>
+        <tr><td>ส่งข้อความทดสอบ LINE</td><td>✅</td><td>✅</td><td>❌</td></tr>
+        <tr><td>ดึง/ซิงก์ Cloud</td><td>✅</td><td>✅</td><td>✅</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════ -->
+  <section id="troubleshoot">
+    <h2>15. การแก้ไขปัญหาที่พบบ่อย</h2>
+
+    <div class="card">
+      <div class="card-title">❌ "Failed to fetch" เมื่อทดสอบ LINE</div>
+      <ul>
+        <li>ตรวจสอบว่ากรอก GAS URL ถูกต้องและกด "บันทึกการตั้งค่า" แล้ว</li>
+        <li>GAS ต้อง Deploy ด้วย "Anyone" access</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">❌ "Authentication failed" จาก LINE</div>
+      <ul>
+        <li>Token หมดอายุหรือถูก revoke — ไป LINE Developers Console ออก Token ใหม่</li>
+        <li>ตรวจว่า copy token ครบ ไม่มีช่องว่างต้น/ท้าย</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">❌ "Failed to send messages" จาก LINE</div>
+      <ul>
+        <li>Group ID / User ID ไม่ถูกต้อง</li>
+        <li>User ยังไม่ได้ Add LINE OA เป็นเพื่อน</li>
+        <li>ส่งข้อความหา bot แล้วดู ID ที่ถูกต้องจากชีต LINE_IDs ใน Google Sheets</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">❌ ข้อมูลหายหลัง Refresh</div>
+      <ul>
+        <li>ข้อมูลอยู่ใน localStorage — ปกติไม่หาย ยกเว้น Clear browser data</li>
+        <li>กด "ดึงข้อมูลจากคลาวด์" เพื่อกู้ข้อมูลจาก Google Sheets</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">❌ ปุ่ม "บันทึกการตั้งค่า" ไม่ทำงาน</div>
+      <ul>
+        <li>ต้อง Login ด้วย Account ที่มีสิทธิ์ Admin เท่านั้น</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">❌ GAS ตอบกลับ {} ว่างเปล่า</div>
+      <ul>
+        <li>Sheet ยังไม่มีชื่อชีต (Parts/Transactions) — กด "ซิงก์คลาวด์" เพื่อสร้าง Sheet ก่อน</li>
+        <li>หรือรัน resetDatabase() ใน Apps Script Editor แล้วซิงก์ใหม่</li>
+      </ul>
+    </div>
+
+    <div style="text-align:center; padding: 40px 0 20px; color: var(--muted); font-size:0.85rem; border-top: 1px solid var(--border); margin-top: 40px;">
+      <p>ระบบบริหารคลังอะไหล่เครื่องมือแพทย์ รพ.นครพิงค์ V3</p>
+      <p>GitHub: <code>surasak4974buem/V3</code> | Version 1.0 — 13 มิถุนายน 2569</p>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<script>
+  // Highlight active nav item on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.nav-item');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 80) current = s.id; });
+    navItems.forEach(n => {
+      n.classList.toggle('active', n.getAttribute('href') === '#' + current);
+    });
+  });
+</script>
+</body>
+</html>
