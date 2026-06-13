@@ -6415,10 +6415,6 @@ function sendLineNotify(flexMessage, token, groupId) {
     }
 
     async function testLineMessage() {
-      if (!settings.lineToken || !settings.lineGroupId) {
-        showToast("ไม่สามารถทดสอบได้", "กรุณากรอก LINE Token และ Group ID ให้ครบก่อนการกดทดสอบ", "danger");
-        return;
-      }
       const mockTx = {
         type: "Issue",
         partCode: "SR-SPO2-001",
