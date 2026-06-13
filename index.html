@@ -6322,8 +6322,8 @@ function sendLineNotify(flexMessage, token, groupId) {
     }
 
     function sendLineNotification(tx, remainingStock) {
-      if (!settings.lineToggle || !settings.lineToken || !settings.lineGroupId) {
-        console.log("LINE Notification omitted: Credentials/Toggle are disabled.", tx);
+      if (!settings.lineToggle) {
+        console.log("LINE Notification omitted: Toggle is OFF.", tx);
         return Promise.resolve({ success: true, omitted: true });
       }
 
