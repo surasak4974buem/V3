@@ -2741,6 +2741,25 @@ function sendLineNotify(flexMessage, token, groupId) {
     </main>
   </div>
 
+  <!-- MODAL CONFIRM: กล่องยืนยันการดำเนินการ (ใช้ร่วมกันทุกฟังก์ชัน) -->
+  <div id="modal-confirm" class="modal" style="z-index: 3000;">
+    <div class="modal-content" style="max-width: 440px; border-radius: 16px; overflow: hidden;">
+      <div class="modal-header" id="confirm-header" style="padding: 20px 24px 16px;">
+        <h3 id="confirm-title" style="font-size: 1.1rem;">ยืนยันการดำเนินการ</h3>
+        <button class="close-btn" onclick="closeModal('modal-confirm')">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align: center; padding: 8px 32px 24px;">
+        <div id="confirm-icon" style="font-size: 3.2rem; margin-bottom: 12px; line-height: 1;">⚠️</div>
+        <p id="confirm-message" style="font-size: 1rem; font-weight: 600; margin-bottom: 8px; color: var(--text-primary);"></p>
+        <p id="confirm-submsg" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;"></p>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid var(--border); background: var(--bg-secondary);">
+        <button class="btn btn-secondary" onclick="closeModal('modal-confirm')" id="confirm-cancel-btn" style="min-width: 90px;">ยกเลิก</button>
+        <button class="btn btn-primary" id="confirm-ok-btn" style="min-width: 110px;">ยืนยัน</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL 1: STOCK CARD DETAILS DRAWER -->
   <div id="modal-stock-card" class="modal">
     <div class="modal-content">
@@ -4338,6 +4357,24 @@ function sendLineNotify(flexMessage, token, groupId) {
       });
     }
 
+    // ── Helper: ตรวจสิทธิ์จัดการคลัง (Admin + Stock Manager = CRUD เต็ม) ──────
+    function canManageCatalog() {
+      return currentUser && (currentUser.role === "Admin" || currentUser.role === "Stock Manager");
+    }
+
+    // ── Helper: กล่องยืนยัน (แทน window.confirm) ──────────────────────────────
+    function showConfirmDialog({ icon = "⚠️", title, message, submsg = "", confirmText = "ยืนยัน", danger = false, onConfirm }) {
+      document.getElementById("confirm-icon").innerText = icon;
+      document.getElementById("confirm-title").innerText = title;
+      document.getElementById("confirm-message").innerText = message;
+      document.getElementById("confirm-submsg").innerText = submsg;
+      const okBtn = document.getElementById("confirm-ok-btn");
+      okBtn.innerText = confirmText;
+      okBtn.className = danger ? "btn btn-danger" : "btn btn-primary";
+      okBtn.onclick = () => { closeModal("modal-confirm"); onConfirm(); };
+      openModal("modal-confirm");
+    }
+
     function formatThaiDate(dateStr) {
       if (!dateStr) return "-";
       const d = new Date(dateStr); // รองรับทั้ง "2027-12-04" และ "2027-12-03T17:00:00.000Z" (จาก Sheets pull)
@@ -5182,9 +5219,12 @@ function sendLineNotify(flexMessage, token, groupId) {
               <button class="btn btn-secondary btn-sm" onclick="showStockCard('${p.code}')" style="padding: 4px 8px; font-size: 0.75rem;">
                 <i data-lucide="eye" style="width: 14px; height: 14px;"></i> การใช้งาน
               </button>
-              ${currentUser && currentUser.role !== "General User" ? `
+              ${canManageCatalog() ? `
               <button class="btn btn-secondary btn-sm" onclick="editPartDetails('${p.code}')" style="padding: 4px 8px; font-size: 0.75rem; color: var(--primary);">
                 <i data-lucide="edit" style="width: 14px; height: 14px;"></i> แก้ไข
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="deletePart('${p.code}')" style="padding: 4px 8px; font-size: 0.75rem; color: var(--danger);">
+                <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> ลบ
               </button>
               ` : ''}
             </div>
@@ -5458,20 +5498,62 @@ function sendLineNotify(flexMessage, token, groupId) {
           alert("รหัสอะไหล่นี้มีอยู่แล้วในระบบ กรุณาใช้รหัสอื่น");
           return;
         }
-        parts.push(partPayload);
-        showToast("สำเร็จ", `เพิ่มอะไหล่ ${partCode} สำเร็จ`, "success");
+        showConfirmDialog({
+          icon: "📦",
+          title: "ยืนยันการเพิ่มอะไหล่",
+          message: `เพิ่มอะไหล่รหัส "${partCode}" เข้าคลัง?`,
+          submsg: `ชื่อ: ${partPayload.name}  |  จำนวน: ${partPayload.inStock} ชิ้น  |  ราคา: ฿${partPayload.unitPrice.toLocaleString("th-TH")}`,
+          confirmText: "เพิ่มเข้าคลัง",
+          danger: false,
+          onConfirm: () => {
+            parts.push(partPayload);
+            closeModal("modal-add-part");
+            persistState(); renderCatalog(); updateDashboard();
+            showToast("สำเร็จ", `เพิ่มอะไหล่ ${partCode} สำเร็จ`, "success");
+          }
+        });
       } else {
-        const index = parts.findIndex(p => p.code === partCode);
-        if (index !== -1) {
-          parts[index] = { ...parts[index], ...partPayload };
-          showToast("สำเร็จ", `แก้ไขรายละเอียดอะไหล่ ${partCode} สำเร็จ`, "success");
-        }
+        showConfirmDialog({
+          icon: "✏️",
+          title: "ยืนยันการแก้ไขอะไหล่",
+          message: `บันทึกการแก้ไขอะไหล่รหัส "${partCode}"?`,
+          submsg: `ชื่อ: ${partPayload.name}  |  จำนวน: ${partPayload.inStock} ชิ้น  |  ราคา: ฿${partPayload.unitPrice.toLocaleString("th-TH")}`,
+          confirmText: "บันทึกการแก้ไข",
+          danger: false,
+          onConfirm: () => {
+            const index = parts.findIndex(p => p.code === partCode);
+            if (index !== -1) parts[index] = { ...parts[index], ...partPayload };
+            closeModal("modal-add-part");
+            persistState(); renderCatalog(); updateDashboard();
+            showToast("สำเร็จ", `แก้ไขรายละเอียดอะไหล่ ${partCode} สำเร็จ`, "success");
+          }
+        });
       }
+    }
 
-      closeModal("modal-add-part");
-      persistState();
-      renderCatalog();
-      updateDashboard();
+    window.deletePart = function(partCode) {
+      if (!canManageCatalog()) {
+        showToast("ไม่มีสิทธิ์", "เฉพาะ Admin หรือ Stock Manager เท่านั้น", "danger");
+        return;
+      }
+      const part = parts.find(p => p.code === partCode);
+      if (!part) return;
+      const txCount = transactions.filter(t => t.partCode === partCode).length;
+      showConfirmDialog({
+        icon: "🗑️",
+        title: "ยืนยันการลบอะไหล่",
+        message: `ลบอะไหล่ "${part.name}" (${partCode}) ออกจากคลัง?`,
+        submsg: txCount > 0
+          ? `⚠️ มีประวัติรายการ ${txCount} รายการที่เชื่อมโยงกับอะไหล่นี้ — การลบจะไม่ลบประวัติ`
+          : "อะไหล่นี้ยังไม่มีประวัติรายการ",
+        confirmText: "ลบถาวร",
+        danger: true,
+        onConfirm: () => {
+          parts = parts.filter(p => p.code !== partCode);
+          persistState(); renderCatalog(); updateDashboard();
+          showToast("ลบแล้ว", `ลบอะไหล่ ${partCode} ออกจากคลังเรียบร้อย`, "warning");
+        }
+      });
     }
 
     // 8. Warehouse Transaction forms and handlers
@@ -6720,14 +6802,21 @@ function sendLineNotify(flexMessage, token, groupId) {
         }
       }
 
-      if (confirm(`คุณแน่ใจหรือไม่ที่จะลบผู้ใช้ "${u.realName}" ออกจากระบบถาวร?`)) {
-        userAccounts.splice(index, 1);
-        localStorage.setItem("nkp_users", JSON.stringify(userAccounts));
-        
-        renderUserManagement();
-        persistState();
-        showToast("ลบผู้ใช้สำเร็จ", `ลบบัญชีผู้ใช้ ${u.realName} ออกแล้ว`, "success");
-      }
+      showConfirmDialog({
+        icon: "👤",
+        title: "ยืนยันการลบบัญชีผู้ใช้",
+        message: `ลบบัญชี "${u.realName}" ออกจากระบบถาวร?`,
+        submsg: `สิทธิ์: ${u.role}  |  สถานะ: ${u.status}  — ไม่สามารถกู้คืนได้`,
+        confirmText: "ลบบัญชี",
+        danger: true,
+        onConfirm: () => {
+          userAccounts.splice(index, 1);
+          localStorage.setItem("nkp_users", JSON.stringify(userAccounts));
+          renderUserManagement();
+          persistState();
+          showToast("ลบผู้ใช้สำเร็จ", `ลบบัญชีผู้ใช้ ${u.realName} ออกแล้ว`, "success");
+        }
+      });
     };
 
     function generateUserAccount() {
