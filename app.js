@@ -981,7 +981,9 @@
 
       if (abcChartRef) abcChartRef.destroy();
 
-      const abcCtx = document.getElementById("abcChart").getContext("2d");
+      const abcEl = document.getElementById("abcChart");
+      if (!abcEl) return;
+      const abcCtx = abcEl.getContext("2d");
       abcChartRef = new Chart(abcCtx, {
         type: 'doughnut',
         data: {
@@ -1078,7 +1080,8 @@
 
         if (consumptionChartRef) consumptionChartRef.destroy();
 
-        const ctx = document.getElementById("consumptionChart").getContext("2d");
+        if (!_cChart) return;
+        const ctx = _cChart.getContext("2d");
         const barColor = isDark ? '#2dd4bf' : '#0f766e'; // Teal shades
         const lineColor = isDark ? '#60a5fa' : '#1d4ed8'; // Blue shades
 
@@ -1199,7 +1202,8 @@
 
         if (tscEvChartRef) tscEvChartRef.destroy();
 
-        const tscCtx = document.getElementById("tscEvChart").getContext("2d");
+        if (!_tChart) return;
+        const tscCtx = _tChart.getContext("2d");
         tscEvChartRef = new Chart(tscCtx, {
           type: 'bar',
           data: {
@@ -1727,7 +1731,8 @@
       document.getElementById("modal-sc-stock").innerText = `${part.inStock} ชิ้น`;
       
       const stockColor = part.inStock <= part.reorderPoint ? "var(--danger)" : "var(--success)";
-      document.getElementById("modal-sc-stock").style.color = stockColor;
+      const scStockEl = document.getElementById("modal-sc-stock");
+      if (scStockEl) scStockEl.style.color = stockColor;
 
       document.getElementById("modal-sc-price").innerText = `฿${part.unitPrice.toLocaleString("th-TH")}`;
       document.getElementById("modal-sc-purchase").innerText = part.purchaseDate;
@@ -2801,8 +2806,8 @@
       for(let i=1; i<=6; i++) {
         document.getElementById(`memo-chk-${i}`).checked = (i === 1);
       }
-      document.getElementById("memo-chk-other-text").value = "";
-      document.getElementById("memo-chk-other-text").style.display = "none";
+      const memoOtherText = document.getElementById("memo-chk-other-text");
+      if (memoOtherText) { memoOtherText.value = ""; memoOtherText.style.display = "none"; }
       
       renderMemorandum();
       showToast("ล้างฟอร์มสำเร็จ", "ระบบเปลี่ยนเป็นฟอร์มขออนุมัติแบบว่างเรียบร้อยแล้ว", "success");
