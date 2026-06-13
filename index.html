@@ -1822,7 +1822,7 @@
               <i data-lucide="calendar" style="color: var(--primary);"></i>
               ตารางกำหนดการบำรุงรักษาเชิงป้องกัน (PM Schedule & Parts Plan)
             </span>
-            <button class="btn btn-primary btn-sm admin-only" onclick="openAddPMModal()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;">
+            <button class="btn btn-primary btn-sm catalog-manager-only" onclick="openAddPMModal()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;">
               <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> เพิ่มแผน PM
             </button>
           </div>
@@ -3880,11 +3880,13 @@ function sendLineNotify(flexMessage, token, groupId) {
     function applyPermissions(role) {
       const adminOnlyElements = document.querySelectorAll(".admin-only");
       adminOnlyElements.forEach(el => {
-        if (role === "Admin") {
-          el.style.display = "block";
-        } else {
-          el.style.display = "none";
-        }
+        el.style.display = (role === "Admin") ? "block" : "none";
+      });
+
+      // Admin + Stock Manager: จัดการคลัง + PM แบบ CRUD เต็ม
+      const catalogManagerElements = document.querySelectorAll(".catalog-manager-only");
+      catalogManagerElements.forEach(el => {
+        el.style.display = (role === "Admin" || role === "Stock Manager") ? "inline-flex" : "none";
       });
 
       const menuCatalog = document.getElementById("menu-catalog");
@@ -5989,11 +5991,166 @@ function sendLineNotify(flexMessage, token, groupId) {
           <td><span style="font-weight:600;">${pm.name}</span></td>
           <td>${pm.eqModel}</td>
           <td>${pm.frequency}</td>
-          <td><span style="font-weight: 500;">${pm.scheduledDate}</span></td>
-          <td>${partsString}</td>
+          <td><span style="font-weight: 500;">${formatThaiDate(pm.scheduledDate)}</span></td>
+          <td>${partsString || '<span style="color:var(--text-muted);font-size:0.8rem;">ไม่ระบุ</span>'}</td>
           <td>${pm.assignedTech}</td>
+          <td>
+            <div style="display:flex;gap:6px;">
+              ${canManageCatalog() ? `
+              <button class="btn btn-secondary btn-sm" onclick="editPMPlan('${pm.id}')" style="padding:4px 8px;font-size:0.75rem;color:var(--primary);">
+                <i data-lucide="edit" style="width:13px;height:13px;"></i> แก้ไข
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="deletePMPlan('${pm.id}')" style="padding:4px 8px;font-size:0.75rem;color:var(--danger);">
+                <i data-lucide="trash-2" style="width:13px;height:13px;"></i> ลบ
+              </button>
+              ` : '<span style="color:var(--text-muted);font-size:0.75rem;">—</span>'}
+            </div>
+          </td>
         `;
         tbody.appendChild(tr);
+      });
+    }
+
+    // ── PM Plan CRUD ──────────────────────────────────────────────────────────
+    window.openAddPMModal = function() {
+      if (!canManageCatalog()) {
+        showToast("ไม่มีสิทธิ์", "เฉพาะ Admin หรือ Stock Manager เท่านั้น", "danger");
+        return;
+      }
+      document.getElementById("pm-form-mode").value = "add";
+      document.getElementById("pm-edit-id").value = "";
+      document.getElementById("pm-modal-title").innerText = "เพิ่มแผนบำรุงรักษาใหม่";
+      document.getElementById("pm-name").value = "";
+      document.getElementById("pm-eq-model").value = "";
+      document.getElementById("pm-frequency").value = "Annual (ประจำปี)";
+      document.getElementById("pm-scheduled-date").value = "";
+      document.getElementById("pm-assigned-tech").value = "";
+      document.getElementById("pm-parts-rows").innerHTML = "";
+      addPMPartRow();
+      openModal("modal-pm-plan");
+      lucide.createIcons();
+    }
+
+    window.addPMPartRow = function(code = "", qty = 1) {
+      const container = document.getElementById("pm-parts-rows");
+      const row = document.createElement("div");
+      row.style.cssText = "display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-color);";
+      const options = parts.map(p =>
+        `<option value="${p.code}" ${p.code === code ? "selected" : ""}>[${p.code}] ${p.name} (คงเหลือ: ${p.inStock})</option>`
+      ).join("");
+      row.innerHTML = `
+        <select style="flex:1;padding:8px;border-radius:6px;border:1px solid var(--border-color);background:var(--bg-secondary);color:var(--text-primary);font-family:var(--font-family);font-size:0.85rem;">
+          <option value="">-- เลือกรหัสอะไหล่ --</option>${options}
+        </select>
+        <input type="number" value="${qty}" min="1" placeholder="จำนวน" style="width:78px;padding:8px;border-radius:6px;border:1px solid var(--border-color);background:var(--bg-secondary);color:var(--text-primary);font-family:var(--font-family);">
+        <span style="font-size:0.8rem;color:var(--text-muted);">ชิ้น</span>
+        <button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:4px 6px;font-size:1rem;line-height:1;" title="ลบแถวนี้">✕</button>
+      `;
+      container.appendChild(row);
+    }
+
+    window.savePMPlan = function() {
+      const mode = document.getElementById("pm-form-mode").value;
+      const editId = document.getElementById("pm-edit-id").value;
+      const name = document.getElementById("pm-name").value.trim();
+      const eqModel = document.getElementById("pm-eq-model").value.trim();
+      const frequency = document.getElementById("pm-frequency").value;
+      const scheduledDate = document.getElementById("pm-scheduled-date").value;
+      const assignedTech = document.getElementById("pm-assigned-tech").value.trim();
+
+      if (!name || !eqModel || !scheduledDate || !assignedTech) {
+        showToast("กรุณากรอกข้อมูลให้ครบ", "ชื่องาน, รุ่นเครื่อง, วันที่กำหนด และช่างผู้รับผิดชอบ เป็นข้อมูลบังคับ", "danger");
+        return;
+      }
+
+      const rows = document.getElementById("pm-parts-rows").children;
+      const linkedParts = [];
+      for (const row of rows) {
+        const sel = row.querySelector("select");
+        const inp = row.querySelector("input[type=number]");
+        if (sel && sel.value) linkedParts.push({ code: sel.value, qty: parseInt(inp?.value) || 1 });
+      }
+
+      if (mode === "add") {
+        const maxNum = pmPlans.reduce((m, p) => {
+          const n = parseInt((p.id || "").replace("PM-PLN-", "")) || 0;
+          return Math.max(m, n);
+        }, 0);
+        const newId = "PM-PLN-" + String(maxNum + 1).padStart(3, "0");
+        showConfirmDialog({
+          icon: "📋",
+          title: "ยืนยันการเพิ่มแผน PM",
+          message: `เพิ่มแผน "${name}"?`,
+          submsg: `รุ่นเครื่อง: ${eqModel}  |  วันที่: ${formatThaiDate(scheduledDate)}  |  อะไหล่: ${linkedParts.length} รายการ`,
+          confirmText: "เพิ่มแผน PM",
+          danger: false,
+          onConfirm: () => {
+            pmPlans.push({ id: newId, name, eqModel, frequency, scheduledDate, assignedTech, linkedParts });
+            closeModal("modal-pm-plan");
+            persistState(); renderPMPlans();
+            showToast("สำเร็จ", `เพิ่มแผน PM ${newId} เรียบร้อย`, "success");
+          }
+        });
+      } else {
+        showConfirmDialog({
+          icon: "✏️",
+          title: "ยืนยันการแก้ไขแผน PM",
+          message: `บันทึกการแก้ไขแผน "${editId}"?`,
+          submsg: `ชื่องาน: ${name}  |  วันที่: ${formatThaiDate(scheduledDate)}`,
+          confirmText: "บันทึกการแก้ไข",
+          danger: false,
+          onConfirm: () => {
+            const idx = pmPlans.findIndex(p => p.id === editId);
+            if (idx !== -1) pmPlans[idx] = { ...pmPlans[idx], name, eqModel, frequency, scheduledDate, assignedTech, linkedParts };
+            closeModal("modal-pm-plan");
+            persistState(); renderPMPlans();
+            showToast("สำเร็จ", `แก้ไขแผน PM ${editId} เรียบร้อย`, "success");
+          }
+        });
+      }
+    }
+
+    window.editPMPlan = function(id) {
+      if (!canManageCatalog()) {
+        showToast("ไม่มีสิทธิ์", "เฉพาะ Admin หรือ Stock Manager เท่านั้น", "danger");
+        return;
+      }
+      const pm = pmPlans.find(p => p.id === id);
+      if (!pm) return;
+      document.getElementById("pm-form-mode").value = "edit";
+      document.getElementById("pm-edit-id").value = id;
+      document.getElementById("pm-modal-title").innerText = `แก้ไขแผน PM: ${id}`;
+      document.getElementById("pm-name").value = pm.name;
+      document.getElementById("pm-eq-model").value = pm.eqModel;
+      document.getElementById("pm-frequency").value = pm.frequency;
+      document.getElementById("pm-scheduled-date").value = pm.scheduledDate;
+      document.getElementById("pm-assigned-tech").value = pm.assignedTech;
+      document.getElementById("pm-parts-rows").innerHTML = "";
+      (pm.linkedParts || []).forEach(lp => addPMPartRow(lp.code, lp.qty));
+      if (!(pm.linkedParts || []).length) addPMPartRow();
+      openModal("modal-pm-plan");
+      lucide.createIcons();
+    }
+
+    window.deletePMPlan = function(id) {
+      if (!canManageCatalog()) {
+        showToast("ไม่มีสิทธิ์", "เฉพาะ Admin หรือ Stock Manager เท่านั้น", "danger");
+        return;
+      }
+      const pm = pmPlans.find(p => p.id === id);
+      if (!pm) return;
+      showConfirmDialog({
+        icon: "🗑️",
+        title: "ยืนยันการลบแผน PM",
+        message: `ลบแผน "${pm.name}"?`,
+        submsg: `รหัส: ${id}  |  รุ่นเครื่อง: ${pm.eqModel}  |  วันที่: ${formatThaiDate(pm.scheduledDate)}`,
+        confirmText: "ลบแผน PM",
+        danger: true,
+        onConfirm: () => {
+          pmPlans = pmPlans.filter(p => p.id !== id);
+          persistState(); renderPMPlans();
+          showToast("ลบแล้ว", `ลบแผน PM ${id} เรียบร้อย`, "warning");
+        }
       });
     }
 
