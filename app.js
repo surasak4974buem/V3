@@ -2003,9 +2003,11 @@
 
       const serialInput = document.getElementById("tx-eq-serial");
       const dueDateInput = document.getElementById("tx-due-date");
-      
+
       const repairGroup = document.getElementById("tx-repair-group");
       const deptGroup = document.getElementById("tx-dept-group");
+
+      if (!issueDiv || !borrowDiv || !serialInput || !dueDateInput) return;
 
       if (type === "Issue") {
         issueDiv.style.display = "grid";
