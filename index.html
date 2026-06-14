@@ -1971,13 +1971,15 @@
                 <label>ส่วนราชการ *</label>
                 <input type="text" id="memo-edit-dept" value="ศูนย์เครื่องมือแพทย์ กลุ่มงานโครงสร้างพื้นฐานและวิศวกรรมทางการแพทย์ โทร.2889">
               </div>
-              <div class="form-group">
-                <label>เลขที่หนังสือ (ที่) *</label>
-                <input type="text" id="memo-edit-doc-no" value="ชม 0033.101/3/ 12 - 69">
-              </div>
-              <div class="form-group">
-                <label>วันที่ *</label>
-                <input type="text" id="memo-edit-date" value="20 มกราคม 2569">
+              <div style="grid-column: span 2; display: grid; grid-template-columns: 3fr 2fr; gap: 16px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label>เลขที่หนังสือ (ที่) *</label>
+                  <input type="text" id="memo-edit-doc-no" value="ชม 0033.101/3/ 12 - 69">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label>วันที่ *</label>
+                  <input type="text" id="memo-edit-date" value="20 มกราคม 2569">
+                </div>
               </div>
               <div class="form-group" style="grid-column: span 2;">
                 <label>เรื่อง *</label>
@@ -2044,28 +2046,30 @@
               </div>
 
               <!-- Signatures configurator -->
-              <div class="form-group">
-                <label>ลงชื่อ (ซ้ายบน) - ผู้ขอซื้อ/หัวหน้างาน *</label>
-                <input type="text" id="memo-edit-sig-left1" value="นายสุรศักดิ์ พึ่งเล่ห์">
-                <input type="text" id="memo-edit-title-left1" value="หัวหน้างาน" style="margin-top: 5px; font-size: 0.8rem;">
-              </div>
-
-              <div class="form-group">
-                <label>ลงชื่อ (ขวาบน) - หัวหน้ากลุ่มงาน / ฝ่าย *</label>
-                <input type="text" id="memo-edit-sig-right1" value="นายทนงศักดิ์ ปัญญาอินทร์">
-                <input type="text" id="memo-edit-title-right1" value="หัวหน้ากลุ่มงาน / ฝ่าย" style="margin-top: 5px; font-size: 0.8rem;">
-              </div>
-
-              <div class="form-group">
-                <label>ลงชื่อ (ซ้ายล่าง) - ผู้ช่วยผู้อำนวยการด้านพัสดุ *</label>
-                <input type="text" id="memo-edit-sig-left2" value="นายรัฐศาสตร์ มหนวเทพ">
-                <input type="text" id="memo-edit-title-left2" value="ผู้ช่วยผู้อำนวยการด้านพัสดุ" style="margin-top: 5px; font-size: 0.8rem;">
-              </div>
-
-              <div class="form-group">
-                <label>ลงชื่อ (ขวาล่าง) - ผู้อำนวยการโรงพยาบาล *</label>
-                <input type="text" id="memo-edit-sig-right2" value="นายบรรเจิด นนทสูติ">
-                <input type="text" id="memo-edit-title-right2" value="ผู้อำนวยการโรงพยาบาลนครพิงค์" style="margin-top: 5px; font-size: 0.8rem;">
+              <div style="grid-column: span 2; border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; background: var(--bg-secondary);">
+                <div style="font-weight: 600; margin-bottom: 12px; font-size: 0.85rem; color: var(--text-secondary);">ลายเซ็น / ผู้อนุมัติ</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                  <div class="form-group" style="margin: 0;">
+                    <label style="font-size: 0.8rem;">ซ้ายบน — ผู้ขอซื้อ/หัวหน้างาน *</label>
+                    <input type="text" id="memo-edit-sig-left1" value="นายสุรศักดิ์ พึ่งเล่ห์">
+                    <input type="text" id="memo-edit-title-left1" value="หัวหน้างาน" style="margin-top: 5px; font-size: 0.8rem;">
+                  </div>
+                  <div class="form-group" style="margin: 0;">
+                    <label style="font-size: 0.8rem;">ขวาบน — หัวหน้ากลุ่มงาน/ฝ่าย *</label>
+                    <input type="text" id="memo-edit-sig-right1" value="นายทนงศักดิ์ ปัญญาอินทร์">
+                    <input type="text" id="memo-edit-title-right1" value="หัวหน้ากลุ่มงาน / ฝ่าย" style="margin-top: 5px; font-size: 0.8rem;">
+                  </div>
+                  <div class="form-group" style="margin: 0;">
+                    <label style="font-size: 0.8rem;">ซ้ายล่าง — ผช.ผอ.ด้านพัสดุ *</label>
+                    <input type="text" id="memo-edit-sig-left2" value="นายรัฐศาสตร์ มหนวเทพ">
+                    <input type="text" id="memo-edit-title-left2" value="ผู้ช่วยผู้อำนวยการด้านพัสดุ" style="margin-top: 5px; font-size: 0.8rem;">
+                  </div>
+                  <div class="form-group" style="margin: 0;">
+                    <label style="font-size: 0.8rem;">ขวาล่าง — ผู้อำนวยการรพ. *</label>
+                    <input type="text" id="memo-edit-sig-right2" value="นายบรรเจิด นนทสูติ">
+                    <input type="text" id="memo-edit-title-right2" value="ผู้อำนวยการโรงพยาบาลนครพิงค์" style="margin-top: 5px; font-size: 0.8rem;">
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -2162,16 +2166,16 @@
                   รวม <span id="memo-view-total-items" style="font-weight: bold;">0</span> รายการ เป็นเงินทั้งสิ้น (โดยประมาณ) <span id="memo-view-total-val" style="font-weight: bold; padding: 0 10px;">0.00</span> บาท (<span id="memo-view-total-thai" style="font-weight: bold;">ศูนย์บาทถ้วน</span>)
                 </p>
 
-                <!-- Reason text -->
-                <div style="margin-bottom: 6px;">
-                  <span style="font-weight: bold;">เหตุผลในการจัดซื้อ</span>
-                  <span id="memo-view-reason" style="display: inline; padding-left: 5px;">ใช้สำรองศูนย์เครื่องมือแพทย์ เพื่อเปลี่ยนให้หน่วยงานต่างๆ</span>
-                </div>
-
-                <!-- Committee text -->
-                <div style="margin-bottom: 8px; line-height: 1.35;">
-                  <div>และส่งรายชื่อกรรมการตรวจรับ ดังมีรายชื่อ ดังนี้</div>
-                  <div id="memo-view-committee" style="padding-left: 20px; margin-top: 2px;"></div>
+                <!-- Reason + Committee bordered section (mirrors original document bordered rows) -->
+                <div style="border: 1px solid black; border-top: none; padding: 5px 12px; margin-bottom: 6px; line-height: 1.4;">
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-weight: bold;">เหตุผลในการจัดซื้อ</span>
+                    <span id="memo-view-reason" style="display: inline; padding-left: 5px;">ใช้สำรองศูนย์เครื่องมือแพทย์ เพื่อเปลี่ยนให้หน่วยงานต่างๆ</span>
+                  </div>
+                  <div style="line-height: 1.35;">
+                    <div>และส่งรายชื่อกรรมการตรวจรับ ดังมีรายชื่อ ดังนี้</div>
+                    <div id="memo-view-committee" style="padding-left: 20px; margin-top: 2px;"></div>
+                  </div>
                 </div>
 
                 <div style="text-align: center; margin-bottom: 8px; font-weight: 500;">จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติเบื้องต้นให้ดำเนินการจัดซื้อ</div>
