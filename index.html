@@ -2142,14 +2142,14 @@
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 14px;">
                   <thead>
                     <tr>
-                      <th style="border: 1px solid black; padding: 3px 5px; text-align: center; width: 6%; font-weight: bold;">ลำดับ</th>
-                      <th style="border: 1px solid black; padding: 3px 6px; text-align: center; font-weight: bold;">รายการ</th>
-                      <th style="border: 1px solid black; padding: 3px 5px; text-align: center; width: 10%; font-weight: bold;">จำนวน<br>ที่ต้องการ</th>
-                      <th style="border: 1px solid black; padding: 3px 5px; text-align: center; width: 10%; font-weight: bold;">หน่วย<br>นับ</th>
-                      <th style="border: 1px solid black; padding: 3px 5px; text-align: center; width: 12%; font-weight: bold;">ราคา<br>ต่อหน่วย</th>
-                      <th style="border: 1px solid black; padding: 3px 5px; text-align: center; width: 10%; font-weight: bold;">คงเหลือ</th>
-                      <th style="border: 1px solid black; padding: 3px 5px; text-align: center; width: 12%; font-weight: bold;">อัตราการ<br>ใช้ต่อเดือน</th>
-                      <th style="border: 1px solid black; padding: 3px 5px; text-align: center; width: 14%; font-weight: bold;">วงเงิน<br>ที่จะซื้อ</th>
+                      <th style="border: 1px solid black; padding: 2px 5px; text-align: center; width: 6%; font-weight: bold;">ลำดับ</th>
+                      <th style="border: 1px solid black; padding: 2px 6px; text-align: center; font-weight: bold;">รายการ</th>
+                      <th style="border: 1px solid black; padding: 2px 5px; text-align: center; width: 10%; font-weight: bold;">จำนวน<br>ที่ต้องการ</th>
+                      <th style="border: 1px solid black; padding: 2px 5px; text-align: center; width: 10%; font-weight: bold;">หน่วย<br>นับ</th>
+                      <th style="border: 1px solid black; padding: 2px 5px; text-align: center; width: 12%; font-weight: bold;">ราคา<br>ต่อหน่วย</th>
+                      <th style="border: 1px solid black; padding: 2px 5px; text-align: center; width: 10%; font-weight: bold;">คงเหลือ</th>
+                      <th style="border: 1px solid black; padding: 2px 5px; text-align: center; width: 12%; font-weight: bold;">อัตราการ<br>ใช้ต่อเดือน</th>
+                      <th style="border: 1px solid black; padding: 2px 5px; text-align: center; width: 14%; font-weight: bold;">วงเงิน<br>ที่จะซื้อ</th>
                     </tr>
                   </thead>
                   <tbody id="memo-view-table-body">
@@ -2176,42 +2176,38 @@
 
                 <div style="text-align: center; margin-bottom: 8px; font-weight: 500;">จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติเบื้องต้นให้ดำเนินการจัดซื้อ</div>
 
-                <!-- Official Signature Matrix (2 columns) -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-bottom: 8px; font-size: 14px; line-height: 1.3;">
-                  
-                  <!-- Row 1: Left column -->
-                  <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 56px;">
-                    <div>ลงชื่อ......................................................</div>
-                    <div style="margin-top: 5px;">(<span id="memo-view-sig-left1">นายสุรศักดิ์ พึ่งเล่ห์</span>)</div>
-                    <div style="font-size: 13px; color: #333;" id="memo-view-title-left1">หัวหน้างาน</div>
-                  </div>
+                <!-- Official Signature Matrix (2 flowing columns) -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 10px; font-size: 14px; line-height: 1.38;">
 
-                  <!-- Row 1: Right column -->
-                  <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 56px;">
-                    <div>ลงชื่อ......................................................</div>
-                    <div style="margin-top: 5px;">(<span id="memo-view-sig-right1">นายทนงศักดิ์ ปัญญาอินทร์</span>)</div>
-                    <div style="font-size: 13px; color: #333;" id="memo-view-title-right1">หัวหน้ากลุ่มงาน / ฝ่าย</div>
-                  </div>
-
-                  <!-- Row 2: Left column -->
-                  <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 80px; padding-top: 10px;">
-                    <div style="align-self: flex-start; margin-left: 20px; margin-bottom: 10px; font-weight: bold;">เห็นควรอนุมัติให้พัสดุดำเนินการ</div>
-                    <div>ลงชื่อ......................................................</div>
-                    <div style="margin-top: 5px;">(<span id="memo-view-sig-left2">นายรัฐศาสตร์ มหนวเทพ</span>)</div>
-                    <div style="font-size: 13px; color: #333;" id="memo-view-title-left2">ผู้ช่วยผู้อำนวยการด้านพัสดุ</div>
-                  </div>
-
-                  <!-- Row 2: Right column -->
-                  <div style="text-align: left; display: flex; flex-direction: column; justify-content: flex-end; padding-left: 40px; height: 80px;">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-weight: bold;">
-                      <span style="font-family: monospace; font-size: 18px;">[✓]</span> อนุมัติในหลักการ
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                      <span style="font-family: monospace; font-size: 18px;">[ ]</span> ....................................................
-                    </div>
-                    <div style="text-align: center; width: 100%; max-width: 250px;">
+                  <!-- LEFT column -->
+                  <div>
+                    <div style="text-align: center;">
                       <div>ลงชื่อ......................................................</div>
-                      <div style="margin-top: 5px;">(<span id="memo-view-sig-right2">นายบรรเจิด นนทสูติ</span>)</div>
+                      <div style="margin-top: 4px;">(<span id="memo-view-sig-left1">นายสุรศักดิ์ พึ่งเล่ห์</span>)</div>
+                      <div style="font-size: 13px; color: #333;" id="memo-view-title-left1">หัวหน้างาน</div>
+                    </div>
+                    <div style="min-height: 36px; margin-top: 14px; font-weight: bold;">เห็นควรอนุมัติให้พัสดุดำเนินการ</div>
+                    <div style="text-align: center;">
+                      <div>ลงชื่อ......................................................</div>
+                      <div style="margin-top: 4px;">(<span id="memo-view-sig-left2">นายรัฐศาสตร์ มหนวเทพ</span>)</div>
+                      <div style="font-size: 13px; color: #333;" id="memo-view-title-left2">ผู้ช่วยผู้อำนวยการด้านพัสดุ</div>
+                    </div>
+                  </div>
+
+                  <!-- RIGHT column -->
+                  <div>
+                    <div style="text-align: center;">
+                      <div>ลงชื่อ......................................................</div>
+                      <div style="margin-top: 4px;">(<span id="memo-view-sig-right1">นายทนงศักดิ์ ปัญญาอินทร์</span>)</div>
+                      <div style="font-size: 13px; color: #333;" id="memo-view-title-right1">หัวหน้ากลุ่มงาน / ฝ่าย</div>
+                    </div>
+                    <div style="min-height: 36px; margin-top: 14px; padding-left: 20px;">
+                      <div style="font-weight: bold; margin-bottom: 4px;"><span style="font-family: monospace; font-size: 16px;">[✓]</span> อนุมัติในหลักการ</div>
+                      <div><span style="font-family: monospace; font-size: 16px;">[ ]</span> ........................................</div>
+                    </div>
+                    <div style="text-align: center;">
+                      <div>ลงชื่อ......................................................</div>
+                      <div style="margin-top: 4px;">(<span id="memo-view-sig-right2">นายบรรเจิด นนทสูติ</span>)</div>
                       <div style="font-size: 13px; color: #333;" id="memo-view-title-right2">ผู้อำนวยการโรงพยาบาลนครพิงค์</div>
                     </div>
                   </div>
@@ -4292,7 +4288,7 @@ function sendLineNotify(flexMessage, token, groupId) {
     cursor: pointer; font-size: 14px; font-weight: bold;
   }
   table { border-collapse: collapse; }
-  th, td { border: 1px solid black; padding: 3px 5px; }
+  th, td { border: 1px solid black; padding: 2px 5px; }
 </style>
 </head>
 <body>
@@ -6732,14 +6728,14 @@ ${printArea.outerHTML}
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td style="border: 1px solid black; padding: 3px 5px; text-align: center;">${index + 1}</td>
-          <td style="border: 1px solid black; padding: 3px 6px;">${item.desc}</td>
-          <td style="border: 1px solid black; padding: 3px 5px; text-align: center;">${item.qty}</td>
-          <td style="border: 1px solid black; padding: 3px 5px; text-align: center;">${item.unit}</td>
-          <td style="border: 1px solid black; padding: 3px 5px; text-align: right;">${item.price.toLocaleString("th-TH")}</td>
-          <td style="border: 1px solid black; padding: 3px 5px; text-align: center;">${item.stock}</td>
-          <td style="border: 1px solid black; padding: 3px 5px; text-align: center;">${item.monthly}</td>
-          <td style="border: 1px solid black; padding: 3px 5px; text-align: right; font-weight: bold;">${lineTotal.toLocaleString("th-TH")}</td>
+          <td style="border: 1px solid black; padding: 2px 5px; text-align: center;">${index + 1}</td>
+          <td style="border: 1px solid black; padding: 2px 6px;">${item.desc}</td>
+          <td style="border: 1px solid black; padding: 2px 5px; text-align: center;">${item.qty}</td>
+          <td style="border: 1px solid black; padding: 2px 5px; text-align: center;">${item.unit}</td>
+          <td style="border: 1px solid black; padding: 2px 5px; text-align: right;">${item.price.toLocaleString("th-TH")}</td>
+          <td style="border: 1px solid black; padding: 2px 5px; text-align: center;">${item.stock}</td>
+          <td style="border: 1px solid black; padding: 2px 5px; text-align: center;">${item.monthly}</td>
+          <td style="border: 1px solid black; padding: 2px 5px; text-align: right; font-weight: bold;">${lineTotal.toLocaleString("th-TH")}</td>
         `;
         memoTbody.appendChild(tr);
       });
