@@ -1434,112 +1434,35 @@
           </div>
         </div>
 
-        <!-- Budget Status Section -->
-        <div class="card" id="budget-status-card" style="width: 100%;">
-          <div class="card-header">
-            <span class="card-title">
-              <i data-lucide="wallet" style="color: var(--primary);"></i>
-              สถานะงบประมาณพัสดุอะไหล่ประจำปีงบประมาณ <span id="budget-fiscal-year-label"></span>
-            </span>
-          </div>
-          <div class="budget-projects-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px;">
-            <!-- Project 1 -->
-            <div class="budget-project-card" style="padding: 16px; border: 1px solid var(--border-color); border-radius: 12px; background: rgba(15, 118, 110, 0.02);">
-              <h4 style="font-weight: 700; margin-bottom: 12px; font-size: 0.95rem; color: var(--primary);">
-                โครงการที่ 1: จัดซื้อสาย SPO2 Bedside Monitor (ร้านเอสอาร์.ชายน์ฯ)
-              </h4>
-              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
-                <span>ยอดงบประมาณรวม: ฿<span id="proj1-total-budget-val">1,418,500</span></span>
-                <span>ใช้ไปแล้ว: ฿<span id="proj1-total-used-val">0</span> (<span id="proj1-total-pct">0</span>%)</span>
-              </div>
-              <div class="progress-bar-container" style="background: var(--bg-tertiary); height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 15px;">
-                <div id="proj1-total-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--success)); transition: width 0.4s ease;"></div>
-              </div>
-              
-              <!-- Cat 1.1 -->
-              <div style="margin-left: 10px; margin-bottom: 10px;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; color: var(--text-secondary);">
-                  <span>• สายวัด SpO2 แบบ Reusable</span>
-                  <span>฿<span id="proj1-catA-used-val">0</span> / ฿<span id="proj1-catA-budget-val">1,294,500</span> (<span id="proj1-catA-pct">0</span>%)</span>
-                </div>
-                <div class="progress-bar-container" style="background: var(--bg-tertiary); height: 6px; border-radius: 3px; overflow: hidden;">
-                  <div id="proj1-catA-progress" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.4s ease;"></div>
-                </div>
-              </div>
-              
-              <!-- Cat 1.2 -->
-              <div style="margin-left: 10px;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; color: var(--text-secondary);">
-                  <span>• สายวัด SpO2 แบบ Cable/Probe</span>
-                  <span>฿<span id="proj1-catB-used-val">0</span> / ฿<span id="proj1-catB-budget-val">124,000</span> (<span id="proj1-catB-pct">0</span>%)</span>
-                </div>
-                <div class="progress-bar-container" style="background: var(--bg-tertiary); height: 6px; border-radius: 3px; overflow: hidden;">
-                  <div id="proj1-catB-progress" style="width: 0%; height: 100%; background: var(--secondary); transition: width 0.4s ease;"></div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Project 2 -->
-            <div class="budget-project-card" style="padding: 16px; border: 1px solid var(--border-color); border-radius: 12px; background: rgba(29, 78, 216, 0.02);">
-              <h4 style="font-weight: 700; margin-bottom: 12px; font-size: 0.95rem; color: var(--secondary);">
-                โครงการที่ 2: จัดซื้อสายไฟและสายต่อพ่วง (บจก. แบงค็อก เมดิคอล โปร)
-              </h4>
-              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
-                <span>ยอดงบประมาณรวม: ฿<span id="proj2-total-budget-val">200,000</span></span>
-                <span>ใช้ไปแล้ว: ฿<span id="proj2-total-used-val">0</span> (<span id="proj2-total-pct">0</span>%)</span>
-              </div>
-              <div class="progress-bar-container" style="background: var(--bg-tertiary); height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 15px;">
-                <div id="proj2-total-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--secondary), var(--primary-hover)); transition: width 0.4s ease;"></div>
-              </div>
-              
-              <!-- Cat 2.1 -->
-              <div style="margin-left: 10px; margin-bottom: 10px;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; color: var(--text-secondary);">
-                  <span>• สายต่อพ่วง SpO2 Extension Cable</span>
-                  <span>฿<span id="proj2-catA-used-val">0</span> / ฿<span id="proj2-catA-budget-val">150,000</span> (<span id="proj2-catA-pct">0</span>%)</span>
-                </div>
-                <div class="progress-bar-container" style="background: var(--bg-tertiary); height: 6px; border-radius: 3px; overflow: hidden;">
-                  <div id="proj2-catA-progress" style="width: 0%; height: 100%; background: var(--secondary); transition: width 0.4s ease;"></div>
-                </div>
-              </div>
-              
-              <!-- Cat 2.2 -->
-              <div style="margin-left: 10px;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; color: var(--text-secondary);">
-                  <span>• สายไฟ AC Gray Medical Grade</span>
-                  <span>฿<span id="proj2-catB-used-val">0</span> / ฿<span id="proj2-catB-budget-val">50,000</span> (<span id="proj2-catB-pct">0</span>%)</span>
-                </div>
-                <div class="progress-bar-container" style="background: var(--bg-tertiary); height: 6px; border-radius: 3px; overflow: hidden;">
-                  <div id="proj2-catB-progress" style="width: 0%; height: 100%; background: var(--warning); transition: width 0.4s ease;"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- Charts Section -->
         <div class="charts-grid">
-          <!-- TSC / EV Analyzer -->
-          <div class="card">
+          <!-- Urgent Items Stacked Bar Chart -->
+          <div class="card" style="flex: 2; min-width: 0;">
             <div class="card-header">
-              <span class="card-title">
-                <i data-lucide="line-chart" style="color: var(--secondary);"></i>
-                สัดส่วนวิเคราะห์ค่าบริการทางเทคนิคต่อมูลค่าเครื่อง (TSC/EV Ratio - 5.1.5 ข)
+              <span class="card-title" style="color: var(--danger);">
+                <i data-lucide="bar-chart-2" style="color: var(--danger);"></i>
+                สต็อกวิกฤต — เปรียบเทียบสต็อกสูงสุด / ขั้นต่ำ / จุดสั่งซื้อ / คงคลัง
               </span>
             </div>
-            <div class="chart-container">
-              <canvas id="tscEvChart"></canvas>
+            <div class="chart-container" style="height: 280px;">
+              <canvas id="urgentStockChart"></canvas>
+            </div>
+            <div style="display:flex; gap:16px; flex-wrap:wrap; padding: 8px 16px 12px; font-size:0.75rem; color:var(--text-secondary);">
+              <span><span style="display:inline-block;width:12px;height:12px;background:#60a5fa;border-radius:2px;margin-right:4px;"></span>สต็อกสูงสุด</span>
+              <span><span style="display:inline-block;width:12px;height:12px;background:#34d399;border-radius:2px;margin-right:4px;"></span>สต็อกขั้นต่ำ</span>
+              <span><span style="display:inline-block;width:12px;height:12px;background:#fbbf24;border-radius:2px;margin-right:4px;"></span>จุดสั่งซื้อ</span>
+              <span><span style="display:inline-block;width:12px;height:12px;background:#f87171;border-radius:2px;margin-right:4px;"></span>คงคลังจริง</span>
             </div>
           </div>
           <!-- ABC Distribution -->
-          <div class="card">
+          <div class="card" style="flex: 1; min-width: 0;">
             <div class="card-header">
               <span class="card-title">
                 <i data-lucide="pie-chart" style="color: var(--primary);"></i>
                 การกระจายกลุ่มอะไหล่แบบ ABC
               </span>
             </div>
-            <div class="chart-container">
+            <div class="chart-container" style="height: 280px;">
               <canvas id="abcChart"></canvas>
             </div>
           </div>
@@ -2324,8 +2247,76 @@
         </div>
       </section>
 
-      <!-- TAB 7: BUDGET MANAGEMENT (แผนงบประมาณประจำปี) -->
+      <!-- TAB 7: BUDGET MANAGEMENT (แผนงบประมาณประจำปี) — Admin CRUD / Stock Manager read-only -->
       <section id="tab-budget" class="tab-content">
+
+        <!-- Budget Status Card (moved from Dashboard) -->
+        <div class="card" id="budget-status-card" style="width: 100%;">
+          <div class="card-header">
+            <span class="card-title">
+              <i data-lucide="wallet" style="color: var(--primary);"></i>
+              สถานะงบประมาณพัสดุอะไหล่ประจำปีงบประมาณ <span id="budget-fiscal-year-label"></span>
+            </span>
+          </div>
+          <div class="budget-projects-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px;">
+            <div class="budget-project-card" style="padding: 16px; border: 1px solid var(--border-color); border-radius: 12px; background: rgba(15, 118, 110, 0.02);">
+              <h4 style="font-weight: 700; margin-bottom: 12px; font-size: 0.95rem; color: var(--primary);">โครงการที่ 1: จัดซื้อสาย SPO2 Bedside Monitor (ร้านเอสอาร์.ชายน์ฯ)</h4>
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
+                <span>ยอดงบประมาณรวม: ฿<span id="proj1-total-budget-val">1,418,500</span></span>
+                <span>ใช้ไปแล้ว: ฿<span id="proj1-total-used-val">0</span> (<span id="proj1-total-pct">0</span>%)</span>
+              </div>
+              <div style="background: var(--bg-tertiary); height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 15px;">
+                <div id="proj1-total-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--success)); transition: width 0.4s ease;"></div>
+              </div>
+              <div style="margin-left: 10px; margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; color: var(--text-secondary);">
+                  <span>• สายวัด SpO2 แบบ Reusable</span>
+                  <span>฿<span id="proj1-catA-used-val">0</span> / ฿<span id="proj1-catA-budget-val">1,294,500</span> (<span id="proj1-catA-pct">0</span>%)</span>
+                </div>
+                <div style="background: var(--bg-tertiary); height: 6px; border-radius: 3px; overflow: hidden;">
+                  <div id="proj1-catA-progress" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.4s ease;"></div>
+                </div>
+              </div>
+              <div style="margin-left: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; color: var(--text-secondary);">
+                  <span>• สายวัด SpO2 แบบ Cable/Probe</span>
+                  <span>฿<span id="proj1-catB-used-val">0</span> / ฿<span id="proj1-catB-budget-val">124,000</span> (<span id="proj1-catB-pct">0</span>%)</span>
+                </div>
+                <div style="background: var(--bg-tertiary); height: 6px; border-radius: 3px; overflow: hidden;">
+                  <div id="proj1-catB-progress" style="width: 0%; height: 100%; background: var(--secondary); transition: width 0.4s ease;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="budget-project-card" style="padding: 16px; border: 1px solid var(--border-color); border-radius: 12px; background: rgba(29, 78, 216, 0.02);">
+              <h4 style="font-weight: 700; margin-bottom: 12px; font-size: 0.95rem; color: var(--secondary);">โครงการที่ 2: จัดซื้อสายไฟและสายต่อพ่วง (บจก. แบงค็อก เมดิคอล โปร)</h4>
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
+                <span>ยอดงบประมาณรวม: ฿<span id="proj2-total-budget-val">200,000</span></span>
+                <span>ใช้ไปแล้ว: ฿<span id="proj2-total-used-val">0</span> (<span id="proj2-total-pct">0</span>%)</span>
+              </div>
+              <div style="background: var(--bg-tertiary); height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 15px;">
+                <div id="proj2-total-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--secondary), var(--primary-hover)); transition: width 0.4s ease;"></div>
+              </div>
+              <div style="margin-left: 10px; margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; color: var(--text-secondary);">
+                  <span>• สายต่อพ่วง SpO2 Extension Cable</span>
+                  <span>฿<span id="proj2-catA-used-val">0</span> / ฿<span id="proj2-catA-budget-val">150,000</span> (<span id="proj2-catA-pct">0</span>%)</span>
+                </div>
+                <div style="background: var(--bg-tertiary); height: 6px; border-radius: 3px; overflow: hidden;">
+                  <div id="proj2-catA-progress" style="width: 0%; height: 100%; background: var(--secondary); transition: width 0.4s ease;"></div>
+                </div>
+              </div>
+              <div style="margin-left: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; color: var(--text-secondary);">
+                  <span>• สายไฟ AC Gray Medical Grade</span>
+                  <span>฿<span id="proj2-catB-used-val">0</span> / ฿<span id="proj2-catB-budget-val">50,000</span> (<span id="proj2-catB-pct">0</span>%)</span>
+                </div>
+                <div style="background: var(--bg-tertiary); height: 6px; border-radius: 3px; overflow: hidden;">
+                  <div id="proj2-catB-progress" style="width: 0%; height: 100%; background: var(--warning); transition: width 0.4s ease;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Summary Stat Cards -->
         <div id="budget-summary-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:16px;">
@@ -2364,27 +2355,34 @@
           <div class="card-header">
             <span class="card-title">
               <i data-lucide="list-checks" style="color: var(--primary);"></i>
-              รายละเอียดงบประมาณปีงบประมาณ <span id="budget-tab-fy-label"></span>
+              แผนงบประมาณประจำปี <span id="budget-tab-fy-label"></span>
             </span>
-            <button class="btn btn-primary btn-sm catalog-manager-only" id="btn-add-budget-item" onclick="openBudgetItemModal()" style="display:none; align-items:center; gap:6px; padding:8px 16px;">
-              <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> เพิ่มรายการงบ
-            </button>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <span id="budget-readonly-badge" style="display:none; font-size:0.75rem; color:var(--text-muted); background:var(--bg-tertiary); padding:4px 10px; border-radius:12px; border:1px solid var(--border-color);">
+                <i data-lucide="eye" style="width:12px;height:12px;"></i> ดูได้อย่างเดียว
+              </span>
+              <button class="btn btn-primary btn-sm budget-admin-only" id="btn-add-budget-item" onclick="openBudgetItemModal()" style="display:none; align-items:center; gap:6px; padding:8px 16px;">
+                <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> เพิ่มรายการงบ
+              </button>
+            </div>
           </div>
           <div class="table-wrapper">
             <table class="custom-table">
               <thead>
                 <tr>
+                  <th>ปีงบประมาณ</th>
                   <th>โครงการ</th>
                   <th>ประเภท / หมวดหมู่</th>
                   <th style="text-align:right;">งบประมาณ (฿)</th>
                   <th style="text-align:right;">ใช้ไปแล้ว (฿)</th>
                   <th style="text-align:right;">คงเหลือ (฿)</th>
                   <th style="text-align:center;">%</th>
-                  <th style="text-align:center;" class="catalog-manager-only" id="budget-actions-header">จัดการ</th>
+                  <th>หมายเหตุ</th>
+                  <th style="text-align:center;" class="budget-admin-only" id="budget-actions-header">จัดการ</th>
                 </tr>
               </thead>
               <tbody id="budget-items-tbody">
-                <tr><td colspan="7" style="text-align:center; padding:24px; color:var(--text-muted);">กำลังโหลด...</td></tr>
+                <tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-muted);">กำลังโหลด...</td></tr>
               </tbody>
             </table>
           </div>
@@ -2743,6 +2741,16 @@ function sendLineNotify(flexMessage, token, groupId) {
       </div>
       <div class="modal-body" style="padding: 20px 24px;">
         <input type="hidden" id="budget-item-id">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="budget-item-fiscal-year">ปีงบประมาณ <span style="color:var(--danger);">*</span></label>
+            <input type="text" id="budget-item-fiscal-year" placeholder="เช่น 2568">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="budget-item-amount">วงเงิน (บาท) <span style="color:var(--danger);">*</span></label>
+            <input type="number" id="budget-item-amount" min="0" step="1000" placeholder="0">
+          </div>
+        </div>
         <div class="form-group">
           <label for="budget-item-project">ชื่อโครงการ <span style="color:var(--danger);">*</span></label>
           <input type="text" id="budget-item-project" placeholder="เช่น โครงการที่ 1: จัดซื้อสาย SpO2">
@@ -2751,9 +2759,9 @@ function sendLineNotify(flexMessage, token, groupId) {
           <label for="budget-item-category">ประเภท / หมวดหมู่ <span style="color:var(--danger);">*</span></label>
           <input type="text" id="budget-item-category" placeholder="เช่น สายวัด SpO2 แบบ Reusable">
         </div>
-        <div class="form-group">
-          <label for="budget-item-amount">วงเงินงบประมาณ (บาท) <span style="color:var(--danger);">*</span></label>
-          <input type="number" id="budget-item-amount" min="0" step="1000" placeholder="0">
+        <div class="form-group" style="margin-bottom:0;">
+          <label for="budget-item-note">หมายเหตุ</label>
+          <input type="text" id="budget-item-note" placeholder="(ถ้ามี)">
         </div>
       </div>
       <div style="display:flex; justify-content:flex-end; gap:10px; padding:16px 24px; border-top:1px solid var(--border-color);">
@@ -3615,8 +3623,8 @@ function sendLineNotify(flexMessage, token, groupId) {
     let activeAnalysisTab = "consumption"; // default tab as requested
     let activeConsumptionRange = "fiscal";  // default range as requested
     let consumptionChartRef = null;
-    let tscEvChartRef = null;
     let abcChartRef = null;
+    let urgentStockChartRef = null;
 
     // Helper: Map parts to Project & Category
     function getPartCategoryAndProject(partCode, partName, supplierName) {
@@ -3914,6 +3922,16 @@ function sendLineNotify(flexMessage, token, groupId) {
       catalogManagerElements.forEach(el => {
         el.style.display = (role === "Admin" || role === "Stock Manager") ? "inline-flex" : "none";
       });
+
+      // Budget: Admin เท่านั้น CRUD (Stock Manager ดูได้อย่างเดียว)
+      const budgetAdminElements = document.querySelectorAll(".budget-admin-only");
+      budgetAdminElements.forEach(el => {
+        el.style.display = (role === "Admin") ? (el.tagName === "TH" ? "table-cell" : "inline-flex") : "none";
+      });
+      const readonlyBadge = document.getElementById("budget-readonly-badge");
+      if (readonlyBadge) {
+        readonlyBadge.style.display = (role === "Stock Manager") ? "inline-flex" : "none";
+      }
 
       const menuCatalog = document.getElementById("menu-catalog");
       if (menuCatalog) {
@@ -4510,6 +4528,7 @@ ${printArea.outerHTML}
 
       renderDashboardAlertsTable();
       drawDashboardCharts();
+      renderUrgentStockChart();
     }
 
     function renderDashboardAlertsTable() {
@@ -4609,11 +4628,9 @@ ${printArea.outerHTML}
 
       // 2. Render active analysis chart
       const _cChart = document.getElementById("consumptionChart");
-      const _tChart = document.getElementById("tscEvChart");
       const _cFilters = document.getElementById("consumption-time-filters");
       if (activeAnalysisTab === "consumption") {
         if (_cChart) _cChart.style.display = "block";
-        if (_tChart) _tChart.style.display = "none";
         if (_cFilters) _cFilters.style.display = "flex";
 
         const now = new Date();
@@ -4752,87 +4769,101 @@ ${printArea.outerHTML}
             }
           }
         });
-      } else {
-        // TSC / EV Analyzer
-        if (_cChart) _cChart.style.display = "none";
-        if (_tChart) _tChart.style.display = "block";
-        if (_cFilters) _cFilters.style.display = "none";
-
-        const serviceCosts = {};
-        transactions.filter(t => t.type === "Issue" && t.eqSerial).forEach(t => {
-          if (!serviceCosts[t.eqSerial]) {
-            serviceCosts[t.eqSerial] = 0;
-          }
-          const part = parts.find(p => p.code === t.partCode);
-          const unitPrice = part ? part.unitPrice : 0;
-          serviceCosts[t.eqSerial] += (t.qty * unitPrice);
-        });
-
-        const labels = [];
-        const ratios = [];
-        const backgroundColors = [];
-
-        equipment.forEach(eq => {
-          const cost = serviceCosts[eq.serial] || 0;
-          const ratio = (cost / eq.value) * 100;
-          
-          labels.push(`${eq.serial} (${eq.model.split(" ")[0]})`);
-          ratios.push(ratio.toFixed(1));
-
-          if (ratio >= 25.0) {
-            backgroundColors.push('#ef4444');
-          } else if (ratio >= 5.0) {
-            backgroundColors.push('#f97316');
-          } else {
-            backgroundColors.push('#14b8a6');
-          }
-        });
-
-        if (tscEvChartRef) tscEvChartRef.destroy();
-
-        if (!_tChart) return;
-        const tscCtx = _tChart.getContext("2d");
-        tscEvChartRef = new Chart(tscCtx, {
-          type: 'bar',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'สัดส่วน TSC / EV (%)',
-              data: ratios,
-              backgroundColor: backgroundColors,
-              borderRadius: 6
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              x: {
-                grid: { display: false },
-                ticks: { color: labelColor, font: { family: 'Sarabun', size: 10 } }
-              },
-              y: {
-                grid: { color: gridColor },
-                ticks: { color: labelColor },
-                title: { display: true, text: 'อัตราส่วน (%)', color: labelColor }
-              }
-            },
-            plugins: {
-              legend: { display: false },
-              tooltip: {
-                callbacks: {
-                  label: function(context) {
-                    return ` อัตราส่วน: ${context.raw}% ของราคาซื้อเครื่อง`;
-                  }
-                }
-              }
-            }
-          }
-        });
       }
 
       // 3. Update Budget Progress status bar
       updateBudgetProgress();
+    }
+
+    function renderUrgentStockChart() {
+      const canvas = document.getElementById("urgentStockChart");
+      if (!canvas) return;
+
+      const urgentParts = parts.filter(p => {
+        const ss = getStockState(p);
+        const es = getExpiryState(p.expiryDate);
+        return ss.status === "Low Stock" || ss.status === "Out of Stock" ||
+               es.status === "Expired" || es.status === "Near Expiry";
+      });
+
+      const isDark = document.body.getAttribute("data-theme") === "dark";
+      const labelColor = isDark ? "#d1d5db" : "#334155";
+      const gridColor = isDark ? "#374151" : "#e2e8f0";
+
+      if (urgentStockChartRef) urgentStockChartRef.destroy();
+
+      if (urgentParts.length === 0) {
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = labelColor;
+        ctx.font = "14px Sarabun";
+        ctx.textAlign = "center";
+        ctx.fillText("ไม่มีรายการที่ต้องดำเนินการเร่งด่วน", canvas.width / 2, canvas.height / 2);
+        return;
+      }
+
+      const labels = urgentParts.map(p => p.code);
+      urgentStockChartRef = new Chart(canvas.getContext("2d"), {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'สต็อกสูงสุด',
+              data: urgentParts.map(p => p.maxStock || 0),
+              backgroundColor: 'rgba(96,165,250,0.85)',
+              borderRadius: 3
+            },
+            {
+              label: 'สต็อกขั้นต่ำ',
+              data: urgentParts.map(p => p.minStock || 0),
+              backgroundColor: 'rgba(52,211,153,0.85)',
+              borderRadius: 3
+            },
+            {
+              label: 'จุดสั่งซื้อ',
+              data: urgentParts.map(p => p.reorderPoint || 0),
+              backgroundColor: 'rgba(251,191,36,0.85)',
+              borderRadius: 3
+            },
+            {
+              label: 'คงคลังจริง',
+              data: urgentParts.map(p => p.inStock || 0),
+              backgroundColor: 'rgba(248,113,113,0.85)',
+              borderRadius: 3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: labelColor, font: { family: 'Sarabun', size: 10 } }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: gridColor },
+              ticks: { color: labelColor, font: { family: 'Sarabun', size: 10 } },
+              title: { display: true, text: 'จำนวน (ชิ้น)', color: labelColor, font: { family: 'Sarabun', size: 10 } }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: ctx => {
+                  const p = urgentParts[ctx[0].dataIndex];
+                  return `${p.code} — ${p.name}`;
+                },
+                label: ctx => ` ${ctx.dataset.label}: ${ctx.raw} ชิ้น`
+              }
+            }
+          }
+        }
+      });
     }
 
     // New Budget & EOM Functions
@@ -5015,17 +5046,19 @@ ${printArea.outerHTML}
       setEl("bsum-remaining", totalRemaining.toLocaleString());
       setEl("bsum-pct", totalPct + "%");
 
-      const canManage = currentUser && (currentUser.role === "Admin" || currentUser.role === "Stock Manager");
+      const canManage = currentUser && currentUser.role === "Admin";
       const addBtn = document.getElementById("btn-add-budget-item");
       if (addBtn) addBtn.style.display = canManage ? "inline-flex" : "none";
       const actHdr = document.getElementById("budget-actions-header");
-      if (actHdr) actHdr.style.display = canManage ? "" : "none";
+      if (actHdr) actHdr.style.display = canManage ? "table-cell" : "none";
+      const readonlyBadge = document.getElementById("budget-readonly-badge");
+      if (readonlyBadge) readonlyBadge.style.display = (currentUser && currentUser.role === "Stock Manager") ? "inline-flex" : "none";
 
       const tbody = document.getElementById("budget-items-tbody");
       if (!tbody) return;
 
       if (settings.budgetItems.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted);">ยังไม่มีรายการงบประมาณ กด "เพิ่มรายการงบ" เพื่อเริ่มต้น</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text-muted);">ยังไม่มีรายการงบประมาณ${canManage ? ' กด "เพิ่มรายการงบ" เพื่อเริ่มต้น' : ''}</td></tr>`;
         return;
       }
 
@@ -5054,6 +5087,7 @@ ${printArea.outerHTML}
           </td>` : `<td></td>`;
         return `
           <tr>
+            <td style="font-size:0.82rem; color:var(--text-secondary);">${item.fiscalYear || '-'}</td>
             <td style="font-size:0.82rem; color:${projectColors[item.projectName]}; font-weight:600;">${item.projectName}</td>
             <td style="font-size:0.85rem;">${item.categoryName}</td>
             <td style="text-align:right; font-weight:600;">฿${item.budgetAmount.toLocaleString()}</td>
@@ -5067,6 +5101,7 @@ ${printArea.outerHTML}
                 <span style="font-size:0.78rem;min-width:36px;font-weight:600;color:${barColor};">${pct}%</span>
               </div>
             </td>
+            <td style="font-size:0.8rem; color:var(--text-muted);">${item.note || ''}</td>
             ${actionsCell}
           </tr>`;
       }).join("");
@@ -5075,43 +5110,51 @@ ${printArea.outerHTML}
     }
 
     function openBudgetItemModal(itemId = null) {
-      if (!currentUser || (currentUser.role !== "Admin" && currentUser.role !== "Stock Manager")) {
-        showToast("ไม่มีสิทธิ์", "เฉพาะ Admin และ Stock Manager เท่านั้น", "danger");
+      if (!currentUser || currentUser.role !== "Admin") {
+        showToast("ไม่มีสิทธิ์", "เฉพาะ Admin เท่านั้นที่สามารถจัดการแผนงบประมาณได้", "danger");
         return;
       }
       initBudgetItems();
       const titleEl = document.getElementById("budget-item-modal-title");
       const idEl = document.getElementById("budget-item-id");
+      const fyEl = document.getElementById("budget-item-fiscal-year");
       const projEl = document.getElementById("budget-item-project");
       const catEl = document.getElementById("budget-item-category");
       const amtEl = document.getElementById("budget-item-amount");
+      const noteEl = document.getElementById("budget-item-note");
 
       if (itemId) {
         const item = settings.budgetItems.find(b => b.id === itemId);
         if (!item) return;
         titleEl.innerText = "แก้ไขรายการงบประมาณ";
         idEl.value = item.id;
+        fyEl.value = item.fiscalYear || "";
         projEl.value = item.projectName;
         catEl.value = item.categoryName;
         amtEl.value = item.budgetAmount;
+        noteEl.value = item.note || "";
       } else {
         titleEl.innerText = "เพิ่มรายการงบประมาณ";
         idEl.value = "";
+        fyEl.value = "";
         projEl.value = "";
         catEl.value = "";
         amtEl.value = "";
+        noteEl.value = "";
       }
       openModal("modal-budget-item");
     }
 
     function saveBudgetItemFromModal() {
       const itemId = document.getElementById("budget-item-id").value.trim();
+      const fiscalYear = document.getElementById("budget-item-fiscal-year").value.trim();
       const projectName = document.getElementById("budget-item-project").value.trim();
       const categoryName = document.getElementById("budget-item-category").value.trim();
       const budgetAmount = parseFloat(document.getElementById("budget-item-amount").value) || 0;
+      const note = document.getElementById("budget-item-note").value.trim();
 
-      if (!projectName || !categoryName) {
-        showToast("ข้อมูลไม่ครบ", "กรุณากรอกชื่อโครงการและประเภทให้ครบถ้วน", "warning");
+      if (!fiscalYear || !projectName || !categoryName) {
+        showToast("ข้อมูลไม่ครบ", "กรุณากรอกปีงบประมาณ ชื่อโครงการ และประเภทให้ครบถ้วน", "warning");
         return;
       }
       if (budgetAmount < 0) {
@@ -5124,7 +5167,7 @@ ${printArea.outerHTML}
         icon: isEdit ? "💾" : "➕",
         title: isEdit ? "ยืนยันการแก้ไขงบประมาณ" : "ยืนยันการเพิ่มรายการงบ",
         message: `${projectName}`,
-        submsg: `${categoryName} — ฿${budgetAmount.toLocaleString()}`,
+        submsg: `${categoryName} — ฿${budgetAmount.toLocaleString()} (ปีงบ ${fiscalYear})`,
         confirmText: isEdit ? "บันทึกการแก้ไข" : "เพิ่มรายการ",
         onConfirm: () => {
           initBudgetItems();
@@ -5132,13 +5175,15 @@ ${printArea.outerHTML}
           if (isEdit) {
             const idx = settings.budgetItems.findIndex(b => b.id === itemId);
             if (idx >= 0) {
+              settings.budgetItems[idx].fiscalYear = fiscalYear;
               settings.budgetItems[idx].projectName = projectName;
               settings.budgetItems[idx].categoryName = categoryName;
               settings.budgetItems[idx].budgetAmount = budgetAmount;
+              settings.budgetItems[idx].note = note;
             }
           } else {
             const newId = "budget_" + Date.now();
-            settings.budgetItems.push({ id: newId, projectName, categoryName, budgetAmount });
+            settings.budgetItems.push({ id: newId, fiscalYear, projectName, categoryName, budgetAmount, note });
           }
           _syncBudgetToOldKeys();
           localStorage.setItem("nkp_parts_settings", JSON.stringify(settings));
@@ -6953,7 +6998,8 @@ ${printArea.outerHTML}
           parts: parts,
           transactions: transactions,
           users: userAccounts,
-          pmPlans: pmPlans
+          pmPlans: pmPlans,
+          budgetItems: settings.budgetItems || []
         })
       })
       .then(() => console.log("Cloud sync successful."))
@@ -6983,6 +7029,10 @@ ${printArea.outerHTML}
               sessionStorage.setItem("nkp_current_user", JSON.stringify(currentUser));
             }
           }
+        }
+        if (data.budgetItems && data.budgetItems.length > 0) {
+          settings.budgetItems = data.budgetItems;
+          localStorage.setItem("nkp_parts_settings", JSON.stringify(settings));
         }
         updateDashboard();
         renderCatalog();
