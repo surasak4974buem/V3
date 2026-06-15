@@ -2250,102 +2250,87 @@
       <!-- TAB 7: BUDGET MANAGEMENT (แผนงบประมาณประจำปี) — Admin CRUD / Stock Manager read-only -->
       <section id="tab-budget" class="tab-content">
 
-        <!-- Budget Status Card (moved from Dashboard) -->
-        <div class="card" id="budget-status-card" style="width: 100%;">
-          <div class="card-header">
+        <!-- Toolbar: title + year dropdown + actions -->
+        <div class="card" style="width:100%;">
+          <div class="card-header" style="flex-wrap:wrap; gap:12px;">
             <span class="card-title">
               <i data-lucide="wallet" style="color: var(--primary);"></i>
-              สถานะงบประมาณพัสดุอะไหล่ประจำปีงบประมาณ <span id="budget-fiscal-year-label"></span>
+              แผนงบประมาณประจำปี <span id="budget-tab-fy-label" style="color:var(--text-secondary); font-weight:500;"></span>
             </span>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <i data-lucide="calendar-range" style="width:16px;height:16px;color:var(--text-secondary);"></i>
+                <label for="budget-year-filter" style="font-size:0.8rem; color:var(--text-secondary);">ปีงบประมาณ:</label>
+                <select id="budget-year-filter" onchange="onBudgetYearChange()" style="padding:6px 12px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-secondary); color:var(--text-primary); font-size:0.85rem; min-width:140px;"></select>
+              </div>
+              <span id="budget-readonly-badge" style="display:none; align-items:center; gap:4px; font-size:0.75rem; color:var(--text-muted); background:var(--bg-tertiary); padding:5px 12px; border-radius:12px; border:1px solid var(--border-color);">
+                <i data-lucide="eye" style="width:12px;height:12px;"></i> ดูได้อย่างเดียว
+              </span>
+              <button class="btn btn-primary btn-sm budget-admin-only" id="btn-add-budget-item" onclick="openBudgetItemModal()" style="display:none; align-items:center; gap:6px; padding:8px 16px;">
+                <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> เพิ่มรายการงบ
+              </button>
+            </div>
           </div>
-          <div class="budget-projects-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px;">
-            <div class="budget-project-card" style="padding: 16px; border: 1px solid var(--border-color); border-radius: 12px; background: rgba(15, 118, 110, 0.02);">
-              <h4 style="font-weight: 700; margin-bottom: 12px; font-size: 0.95rem; color: var(--primary);">โครงการที่ 1: จัดซื้อสาย SPO2 Bedside Monitor (ร้านเอสอาร์.ชายน์ฯ)</h4>
-              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
-                <span>ยอดงบประมาณรวม: ฿<span id="proj1-total-budget-val">1,418,500</span></span>
-                <span>ใช้ไปแล้ว: ฿<span id="proj1-total-used-val">0</span> (<span id="proj1-total-pct">0</span>%)</span>
-              </div>
-              <div style="background: var(--bg-tertiary); height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 15px;">
-                <div id="proj1-total-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--success)); transition: width 0.4s ease;"></div>
-              </div>
-              <div style="margin-left: 10px; margin-bottom: 10px;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; color: var(--text-secondary);">
-                  <span>• สายวัด SpO2 แบบ Reusable</span>
-                  <span>฿<span id="proj1-catA-used-val">0</span> / ฿<span id="proj1-catA-budget-val">1,294,500</span> (<span id="proj1-catA-pct">0</span>%)</span>
-                </div>
-                <div style="background: var(--bg-tertiary); height: 6px; border-radius: 3px; overflow: hidden;">
-                  <div id="proj1-catA-progress" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.4s ease;"></div>
-                </div>
-              </div>
-              <div style="margin-left: 10px;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; color: var(--text-secondary);">
-                  <span>• สายวัด SpO2 แบบ Cable/Probe</span>
-                  <span>฿<span id="proj1-catB-used-val">0</span> / ฿<span id="proj1-catB-budget-val">124,000</span> (<span id="proj1-catB-pct">0</span>%)</span>
-                </div>
-                <div style="background: var(--bg-tertiary); height: 6px; border-radius: 3px; overflow: hidden;">
-                  <div id="proj1-catB-progress" style="width: 0%; height: 100%; background: var(--secondary); transition: width 0.4s ease;"></div>
-                </div>
+
+          <!-- Summary Stat Cards -->
+          <div id="budget-summary-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap:16px; padding: 4px 4px 8px;">
+            <div class="metric-card primary">
+              <div class="metric-icon"><i data-lucide="wallet"></i></div>
+              <div class="metric-details">
+                <span class="metric-value" id="bsum-total">฿0</span>
+                <span class="metric-label">วงเงินงบประมาณทั้งหมด</span>
               </div>
             </div>
-            <div class="budget-project-card" style="padding: 16px; border: 1px solid var(--border-color); border-radius: 12px; background: rgba(29, 78, 216, 0.02);">
-              <h4 style="font-weight: 700; margin-bottom: 12px; font-size: 0.95rem; color: var(--secondary);">โครงการที่ 2: จัดซื้อสายไฟและสายต่อพ่วง (บจก. แบงค็อก เมดิคอล โปร)</h4>
-              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
-                <span>ยอดงบประมาณรวม: ฿<span id="proj2-total-budget-val">200,000</span></span>
-                <span>ใช้ไปแล้ว: ฿<span id="proj2-total-used-val">0</span> (<span id="proj2-total-pct">0</span>%)</span>
+            <div class="metric-card warning">
+              <div class="metric-icon"><i data-lucide="trending-up"></i></div>
+              <div class="metric-details">
+                <span class="metric-value" id="bsum-used">฿0</span>
+                <span class="metric-label">ใช้ไปแล้ว</span>
               </div>
-              <div style="background: var(--bg-tertiary); height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 15px;">
-                <div id="proj2-total-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--secondary), var(--primary-hover)); transition: width 0.4s ease;"></div>
+            </div>
+            <div class="metric-card success">
+              <div class="metric-icon"><i data-lucide="piggy-bank"></i></div>
+              <div class="metric-details">
+                <span class="metric-value" id="bsum-remaining">฿0</span>
+                <span class="metric-label">คงเหลือ</span>
               </div>
-              <div style="margin-left: 10px; margin-bottom: 10px;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; color: var(--text-secondary);">
-                  <span>• สายต่อพ่วง SpO2 Extension Cable</span>
-                  <span>฿<span id="proj2-catA-used-val">0</span> / ฿<span id="proj2-catA-budget-val">150,000</span> (<span id="proj2-catA-pct">0</span>%)</span>
-                </div>
-                <div style="background: var(--bg-tertiary); height: 6px; border-radius: 3px; overflow: hidden;">
-                  <div id="proj2-catA-progress" style="width: 0%; height: 100%; background: var(--secondary); transition: width 0.4s ease;"></div>
-                </div>
-              </div>
-              <div style="margin-left: 10px;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; color: var(--text-secondary);">
-                  <span>• สายไฟ AC Gray Medical Grade</span>
-                  <span>฿<span id="proj2-catB-used-val">0</span> / ฿<span id="proj2-catB-budget-val">50,000</span> (<span id="proj2-catB-pct">0</span>%)</span>
-                </div>
-                <div style="background: var(--bg-tertiary); height: 6px; border-radius: 3px; overflow: hidden;">
-                  <div id="proj2-catB-progress" style="width: 0%; height: 100%; background: var(--warning); transition: width 0.4s ease;"></div>
-                </div>
+            </div>
+            <div class="metric-card" style="background: var(--bg-secondary);">
+              <div class="metric-icon" style="color: var(--secondary);"><i data-lucide="percent"></i></div>
+              <div class="metric-details">
+                <span class="metric-value" id="bsum-pct" style="color: var(--secondary);">0%</span>
+                <span class="metric-label">สัดส่วนที่ใช้ไป</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Summary Stat Cards -->
-        <div id="budget-summary-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:16px;">
-          <div class="metric-card primary">
-            <div class="metric-icon"><i data-lucide="wallet"></i></div>
-            <div class="metric-details">
-              <span class="metric-value" id="bsum-total">0</span>
-              <span class="metric-label">งบประมาณทั้งหมด (฿)</span>
+        <!-- Projects progress (left) + Compare chart (right) -->
+        <div class="charts-grid">
+          <div class="card" style="flex: 1.4; min-width: 0;">
+            <div class="card-header">
+              <span class="card-title">
+                <i data-lucide="layers" style="color: var(--primary);"></i>
+                ความคืบหน้าการใช้งบรายโครงการ
+              </span>
+            </div>
+            <div id="budget-projects-container" style="display:grid; grid-template-columns: 1fr; gap:16px; padding: 4px;">
+              <!-- dynamic project cards -->
             </div>
           </div>
-          <div class="metric-card warning">
-            <div class="metric-icon"><i data-lucide="trending-up"></i></div>
-            <div class="metric-details">
-              <span class="metric-value" id="bsum-used">0</span>
-              <span class="metric-label">ใช้ไปแล้ว (฿)</span>
+          <div class="card" style="flex: 1; min-width: 0;">
+            <div class="card-header">
+              <span class="card-title">
+                <i data-lucide="bar-chart-3" style="color: var(--secondary);"></i>
+                เปรียบเทียบงบประมาณ vs ใช้ไปแล้ว
+              </span>
             </div>
-          </div>
-          <div class="metric-card success">
-            <div class="metric-icon"><i data-lucide="piggy-bank"></i></div>
-            <div class="metric-details">
-              <span class="metric-value" id="bsum-remaining">0</span>
-              <span class="metric-label">คงเหลือ (฿)</span>
+            <div class="chart-container" style="height: 300px;">
+              <canvas id="budgetCompareChart"></canvas>
             </div>
-          </div>
-          <div class="metric-card" style="background: var(--bg-secondary);">
-            <div class="metric-icon" style="color: var(--secondary);"><i data-lucide="percent"></i></div>
-            <div class="metric-details">
-              <span class="metric-value" id="bsum-pct" style="color: var(--secondary);">0%</span>
-              <span class="metric-label">สัดส่วนที่ใช้ไป</span>
+            <div style="display:flex; gap:16px; flex-wrap:wrap; padding: 8px 16px 12px; font-size:0.75rem; color:var(--text-secondary);">
+              <span><span style="display:inline-block;width:12px;height:12px;background:#60a5fa;border-radius:2px;margin-right:4px;"></span>วงเงินงบประมาณ</span>
+              <span><span style="display:inline-block;width:12px;height:12px;background:#f87171;border-radius:2px;margin-right:4px;"></span>ใช้ไปแล้ว</span>
             </div>
           </div>
         </div>
@@ -2355,16 +2340,8 @@
           <div class="card-header">
             <span class="card-title">
               <i data-lucide="list-checks" style="color: var(--primary);"></i>
-              แผนงบประมาณประจำปี <span id="budget-tab-fy-label"></span>
+              รายการงบประมาณ <span id="budget-table-count" style="font-size:0.78rem; color:var(--text-muted); font-weight:500;"></span>
             </span>
-            <div style="display:flex; gap:8px; align-items:center;">
-              <span id="budget-readonly-badge" style="display:none; font-size:0.75rem; color:var(--text-muted); background:var(--bg-tertiary); padding:4px 10px; border-radius:12px; border:1px solid var(--border-color);">
-                <i data-lucide="eye" style="width:12px;height:12px;"></i> ดูได้อย่างเดียว
-              </span>
-              <button class="btn btn-primary btn-sm budget-admin-only" id="btn-add-budget-item" onclick="openBudgetItemModal()" style="display:none; align-items:center; gap:6px; padding:8px 16px;">
-                <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> เพิ่มรายการงบ
-              </button>
-            </div>
           </div>
           <div class="table-wrapper">
             <table class="custom-table">
@@ -2376,7 +2353,7 @@
                   <th style="text-align:right;">งบประมาณ (฿)</th>
                   <th style="text-align:right;">ใช้ไปแล้ว (฿)</th>
                   <th style="text-align:right;">คงเหลือ (฿)</th>
-                  <th style="text-align:center;">%</th>
+                  <th style="text-align:center; min-width:130px;">% การใช้งบ</th>
                   <th>หมายเหตุ</th>
                   <th style="text-align:center;" class="budget-admin-only" id="budget-actions-header">จัดการ</th>
                 </tr>
@@ -2604,11 +2581,27 @@ function doPost(e) {
       });
       usersSheet.getRange(2, 1, usersRows.length, usersHeaders.length).setValues(usersRows);
     }
-    
+
+    // 4. ซิงก์ชีตแผนงบประมาณประจำปี (BudgetPlan)
+    var budgetSheet = ss.getSheetByName("BudgetPlan") || ss.insertSheet("BudgetPlan");
+    budgetSheet.clear();
+    var budgetHeaders = ["id", "fiscalYear", "projectName", "categoryName", "budgetAmount", "usedAmount", "note"];
+    budgetSheet.appendRow(budgetHeaders);
+    if (data.budgetItems && data.budgetItems.length > 0) {
+      var budgetRows = data.budgetItems.map(function(b) {
+        return budgetHeaders.map(function(h) {
+          var val = b[h];
+          if (val === undefined || val === null) return "";
+          return typeof val === 'object' ? JSON.stringify(val) : val;
+        });
+      });
+      budgetSheet.getRange(2, 1, budgetRows.length, budgetHeaders.length).setValues(budgetRows);
+    }
+
     return ContentService.createTextOutput(JSON.stringify({status: "success"}))
       .setMimeType(ContentService.MimeType.JSON);
   }
-  
+
   // 3. การส่งข้อความแจ้งเตือน LINE
   if (data.action === "notify") {
     var lineResult = sendLineNotify(data.message, data.token, data.groupId);
@@ -2654,7 +2647,12 @@ function doGet(e) {
   if (usersSheet) {
     result.users = getSheetDataJson(usersSheet);
   }
-  
+
+  var budgetSheet = ss.getSheetByName("BudgetPlan");
+  if (budgetSheet) {
+    result.budgetItems = getSheetDataJson(budgetSheet);
+  }
+
   return ContentService.createTextOutput(JSON.stringify(result))
     .setMimeType(ContentService.MimeType.JSON);
 }
@@ -2758,6 +2756,13 @@ function sendLineNotify(flexMessage, token, groupId) {
         <div class="form-group">
           <label for="budget-item-category">ประเภท / หมวดหมู่ <span style="color:var(--danger);">*</span></label>
           <input type="text" id="budget-item-category" placeholder="เช่น สายวัด SpO2 แบบ Reusable">
+        </div>
+        <div class="form-group">
+          <label for="budget-item-used">ใช้ไปแล้ว (บาท)</label>
+          <input type="number" id="budget-item-used" min="0" step="1000" placeholder="0">
+          <small id="budget-item-used-hint" style="display:none; font-size:0.72rem; color:var(--success); margin-top:4px;">
+            <i data-lucide="info" style="width:11px;height:11px;"></i> หมวดนี้คำนวณยอดใช้ไปอัตโนมัติจากการเบิกจ่ายจริง (ค่าที่กรอกจะถูกใช้เมื่อไม่มีการเบิก)
+          </small>
         </div>
         <div class="form-group" style="margin-bottom:0;">
           <label for="budget-item-note">หมายเหตุ</label>
@@ -3625,6 +3630,8 @@ function sendLineNotify(flexMessage, token, groupId) {
     let consumptionChartRef = null;
     let abcChartRef = null;
     let urgentStockChartRef = null;
+    let budgetCompareChartRef = null;
+    let selectedBudgetYear = null; // ปีงบที่เลือกในหน้าแผนงบประมาณ (พ.ศ. string) | null = ทั้งหมด
 
     // Helper: Map parts to Project & Category
     function getPartCategoryAndProject(partCode, partName, supplierName) {
@@ -4771,8 +4778,6 @@ ${printArea.outerHTML}
         });
       }
 
-      // 3. Update Budget Progress status bar
-      updateBudgetProgress();
     }
 
     function renderUrgentStockChart() {
@@ -4866,153 +4871,49 @@ ${printArea.outerHTML}
       });
     }
 
-    // New Budget & EOM Functions
-    function updateBudgetProgress() {
-      const now = new Date();
-      const currentFY = getFiscalYear(now);
-      
-      // Update Fiscal Year labels
-      const fyLabel = (currentFY + 543).toString(); // Convert to BE (e.g. 2026 + 543 = 2569)
-      const labelEl = document.getElementById("budget-fiscal-year-label");
-      if (labelEl) labelEl.innerText = `พ.ศ. ${fyLabel} (${currentFY})`;
-
-      // Get budget limits from settings
-      const budget1A = settings.budgetProj1CatA || 0;
-      const budget1B = settings.budgetProj1CatB || 0;
-      const budget1Total = budget1A + budget1B;
-
-      const budget2A = settings.budgetProj2CatA || 0;
-      const budget2B = settings.budgetProj2CatB || 0;
-      const budget2Total = budget2A + budget2B;
-
-      // Reset used values
-      let used1A = 0;
-      let used1B = 0;
-      let used2A = 0;
-      let used2B = 0;
-
-      // Filter transactions for "Issue" in the current fiscal year
-      transactions.forEach(t => {
-        if (t.type === "Issue") {
-          const txDate = new Date(t.timestamp);
-          if (getFiscalYear(txDate) === currentFY) {
-            // Find part to map category
-            const part = parts.find(p => p.code === t.partCode);
-            const pName = part ? part.name : t.partName;
-            const pSupplier = part ? part.supplierName : "";
-            const catMap = getPartCategoryAndProject(t.partCode, pName, pSupplier);
-
-            const cost = parseFloat(t.cost) || (parseInt(t.qty) * (part ? part.unitPrice : 0)) || 0;
-
-            if (catMap.project === "Project 1") {
-              if (catMap.category === "Cat 1.1") used1A += cost;
-              else if (catMap.category === "Cat 1.2") used1B += cost;
-            } else if (catMap.project === "Project 2") {
-              if (catMap.category === "Cat 2.1") used2A += cost;
-              else if (catMap.category === "Cat 2.2") used2B += cost;
-            }
-          }
-        }
-      });
-
-      const used1Total = used1A + used1B;
-      const used2Total = used2A + used2B;
-
-      // Calculate percentages
-      const pct1A = budget1A > 0 ? ((used1A / budget1A) * 100).toFixed(1) : 0;
-      const pct1B = budget1B > 0 ? ((used1B / budget1B) * 100).toFixed(1) : 0;
-      const pct1Total = budget1Total > 0 ? ((used1Total / budget1Total) * 100).toFixed(1) : 0;
-
-      const pct2A = budget2A > 0 ? ((used2A / budget2A) * 100).toFixed(1) : 0;
-      const pct2B = budget2B > 0 ? ((used2B / budget2B) * 100).toFixed(1) : 0;
-      const pct2Total = budget2Total > 0 ? ((used2Total / budget2Total) * 100).toFixed(1) : 0;
-
-      // Helper: set UI values
-      const setEl = (id, val) => {
-        const el = document.getElementById(id);
-        if (el) el.innerText = val;
-      };
-
-      setEl("proj1-total-budget-val", budget1Total.toLocaleString());
-      setEl("proj1-total-used-val", used1Total.toLocaleString());
-      setEl("proj1-total-pct", pct1Total);
-
-      setEl("proj1-catA-budget-val", budget1A.toLocaleString());
-      setEl("proj1-catA-used-val", used1A.toLocaleString());
-      setEl("proj1-catA-pct", pct1A);
-
-      setEl("proj1-catB-budget-val", budget1B.toLocaleString());
-      setEl("proj1-catB-used-val", used1B.toLocaleString());
-      setEl("proj1-catB-pct", pct1B);
-
-      setEl("proj2-total-budget-val", budget2Total.toLocaleString());
-      setEl("proj2-total-used-val", used2Total.toLocaleString());
-      setEl("proj2-total-pct", pct2Total);
-
-      setEl("proj2-catA-budget-val", budget2A.toLocaleString());
-      setEl("proj2-catA-used-val", used2A.toLocaleString());
-      setEl("proj2-catA-pct", pct2A);
-
-      setEl("proj2-catB-budget-val", budget2B.toLocaleString());
-      setEl("proj2-catB-used-val", used2B.toLocaleString());
-      setEl("proj2-catB-pct", pct2B);
-
-      // Helper: Update Progress Bars
-      const updateBar = (barId, pct) => {
-        const el = document.getElementById(barId);
-        if (el) {
-          const safePct = Math.min(parseFloat(pct), 100);
-          el.style.width = safePct + "%";
-          
-          if (pct >= 85) {
-            el.style.background = "var(--danger)";
-          } else if (pct >= 70) {
-            el.style.background = "var(--warning)";
-          } else {
-            if (barId.includes("proj1")) el.style.background = "var(--primary)";
-            if (barId.includes("proj2")) el.style.background = "var(--secondary)";
-          }
-        }
-      };
-
-      updateBar("proj1-total-progress", pct1Total);
-      updateBar("proj1-catA-progress", pct1A);
-      updateBar("proj1-catB-progress", pct1B);
-
-      updateBar("proj2-total-progress", pct2Total);
-      updateBar("proj2-catA-progress", pct2A);
-      updateBar("proj2-catB-progress", pct2B);
-    }
-
     // ---------- BUDGET TAB FUNCTIONS ----------
 
     function initBudgetItems() {
+      const curFyBE = String(getFiscalYear(new Date()) + 543);
       if (!settings.budgetItems || !Array.isArray(settings.budgetItems) || settings.budgetItems.length === 0) {
         settings.budgetItems = [
-          { id: "budgetProj1CatA", projectName: "โครงการที่ 1: จัดซื้อสาย SPO2 Bedside Monitor (ร้านเอสอาร์.ชายน์ฯ)", categoryName: "สายวัด SpO2 แบบ Reusable", budgetAmount: settings.budgetProj1CatA || 1294500 },
-          { id: "budgetProj1CatB", projectName: "โครงการที่ 1: จัดซื้อสาย SPO2 Bedside Monitor (ร้านเอสอาร์.ชายน์ฯ)", categoryName: "สายวัด SpO2 แบบ Cable/Probe", budgetAmount: settings.budgetProj1CatB || 124000 },
-          { id: "budgetProj2CatA", projectName: "โครงการที่ 2: จัดซื้อสายไฟและสายต่อพ่วง (บจก. แบงค็อก เมดิคอล โปร)", categoryName: "สายต่อพ่วง SpO2 Extension Cable", budgetAmount: settings.budgetProj2CatA || 150000 },
-          { id: "budgetProj2CatB", projectName: "โครงการที่ 2: จัดซื้อสายไฟและสายต่อพ่วง (บจก. แบงค็อก เมดิคอล โปร)", categoryName: "สายไฟ AC Gray Medical Grade", budgetAmount: settings.budgetProj2CatB || 50000 }
+          { id: "budgetProj1CatA", fiscalYear: curFyBE, projectName: "โครงการที่ 1: จัดซื้อสาย SPO2 Bedside Monitor (ร้านเอสอาร์.ชายน์ฯ)", categoryName: "สายวัด SpO2 แบบ Reusable", budgetAmount: settings.budgetProj1CatA || 1294500, usedAmount: 0, note: "" },
+          { id: "budgetProj1CatB", fiscalYear: curFyBE, projectName: "โครงการที่ 1: จัดซื้อสาย SPO2 Bedside Monitor (ร้านเอสอาร์.ชายน์ฯ)", categoryName: "สายวัด SpO2 แบบ Cable/Probe", budgetAmount: settings.budgetProj1CatB || 124000, usedAmount: 0, note: "" },
+          { id: "budgetProj2CatA", fiscalYear: curFyBE, projectName: "โครงการที่ 2: จัดซื้อสายไฟและสายต่อพ่วง (บจก. แบงค็อก เมดิคอล โปร)", categoryName: "สายต่อพ่วง SpO2 Extension Cable", budgetAmount: settings.budgetProj2CatA || 150000, usedAmount: 0, note: "" },
+          { id: "budgetProj2CatB", fiscalYear: curFyBE, projectName: "โครงการที่ 2: จัดซื้อสายไฟและสายต่อพ่วง (บจก. แบงค็อก เมดิคอล โปร)", categoryName: "สายไฟ AC Gray Medical Grade", budgetAmount: settings.budgetProj2CatB || 50000, usedAmount: 0, note: "" }
         ];
       }
-    }
-
-    function _syncBudgetToOldKeys() {
+      // Migrate: เติมฟิลด์ที่อาจขาดในข้อมูลเก่า
       settings.budgetItems.forEach(item => {
-        if (["budgetProj1CatA","budgetProj1CatB","budgetProj2CatA","budgetProj2CatB"].includes(item.id)) {
-          settings[item.id] = item.budgetAmount;
-        }
+        if (!item.fiscalYear) item.fiscalYear = curFyBE;
+        if (item.usedAmount === undefined || item.usedAmount === null) item.usedAmount = 0;
+        if (item.note === undefined || item.note === null) item.note = "";
       });
     }
 
-    function _calcBudgetUsed() {
-      const now = new Date();
-      const currentFY = getFiscalYear(now);
+    // คืนค่ารายชื่อปีงบประมาณ (พ.ศ.) ที่มีในระบบ เรียงมากไปน้อย
+    function getBudgetFiscalYears() {
+      const set = new Set();
+      (settings.budgetItems || []).forEach(item => { if (item.fiscalYear) set.add(String(item.fiscalYear)); });
+      set.add(String(getFiscalYear(new Date()) + 543)); // ปีงบปัจจุบันเสมอ
+      return Array.from(set).sort((a, b) => parseInt(b) - parseInt(a));
+    }
+
+    // คำนวณยอดใช้ไปของรายการงบ 1 รายการ (auto สำหรับ 4 หมวดหลัก, manual สำหรับรายการอื่น)
+    function calcBudgetItemUsed(item, autoUsedMap) {
+      const auto = autoUsedMap[item.id];
+      if (auto !== undefined) return auto;        // หมวดหลักที่ติดตามจากการเบิกจ่ายจริง
+      return parseFloat(item.usedAmount) || 0;    // รายการที่กรอกยอดใช้เอง
+    }
+
+    // คำนวณยอดใช้ไปจากการเบิกจ่ายจริงตามปีงบที่เลือก → map ตาม budgetKey
+    function _calcBudgetUsedForYear(fyBE) {
+      const fyCE = parseInt(fyBE) - 543;
       const usedMap = {};
       transactions.forEach(t => {
         if (t.type === "Issue") {
           const txDate = new Date(t.timestamp);
-          if (getFiscalYear(txDate) === currentFY) {
+          if (getFiscalYear(txDate) === fyCE) {
             const part = parts.find(p => p.code === t.partCode);
             const pName = part ? part.name : t.partName;
             const pSupplier = part ? part.supplierName : "";
@@ -5025,27 +4926,64 @@ ${printArea.outerHTML}
       return usedMap;
     }
 
+    function onBudgetYearChange() {
+      const sel = document.getElementById("budget-year-filter");
+      selectedBudgetYear = sel ? sel.value : null;
+      renderBudgetTab();
+    }
+
+    function _syncBudgetToOldKeys() {
+      settings.budgetItems.forEach(item => {
+        if (["budgetProj1CatA","budgetProj1CatB","budgetProj2CatA","budgetProj2CatB"].includes(item.id)) {
+          settings[item.id] = item.budgetAmount;
+        }
+      });
+    }
+
     function renderBudgetTab() {
       initBudgetItems();
-      const now = new Date();
-      const currentFY = getFiscalYear(now);
-      const fyBE = currentFY + 543;
+
+      // 1) เติม dropdown ปีงบ + กำหนดปีที่เลือก ("__all__" = ทุกปี ถือเป็นค่าที่ถูกต้อง)
+      const years = getBudgetFiscalYears();
+      if (selectedBudgetYear !== "__all__" && (!selectedBudgetYear || !years.includes(selectedBudgetYear))) {
+        selectedBudgetYear = String(getFiscalYear(new Date()) + 543);
+        if (!years.includes(selectedBudgetYear)) selectedBudgetYear = years[0];
+      }
+      const yearSel = document.getElementById("budget-year-filter");
+      if (yearSel) {
+        yearSel.innerHTML = `<option value="__all__">ทุกปีงบประมาณ</option>` +
+          years.map(y => `<option value="${y}">ปีงบ ${y}</option>`).join("");
+        yearSel.value = selectedBudgetYear;
+      }
+      const isAll = selectedBudgetYear === "__all__";
+
       const fyLabel = document.getElementById("budget-tab-fy-label");
-      if (fyLabel) fyLabel.innerText = `พ.ศ. ${fyBE} (${currentFY})`;
+      if (fyLabel) fyLabel.innerText = isAll ? "(ทุกปีงบประมาณ)" : `พ.ศ. ${selectedBudgetYear}`;
 
-      const usedMap = _calcBudgetUsed();
+      // 2) กรองรายการตามปีงบที่เลือก
+      const items = isAll
+        ? settings.budgetItems.slice()
+        : settings.budgetItems.filter(it => String(it.fiscalYear) === String(selectedBudgetYear));
 
+      // 3) คำนวณยอดใช้ไปจริงตามปีงบ (auto สำหรับหมวดหลัก)
+      const autoUsedMap = isAll
+        ? years.reduce((acc, y) => { const m = _calcBudgetUsedForYear(y); Object.keys(m).forEach(k => acc[k] = (acc[k]||0)+m[k]); return acc; }, {})
+        : _calcBudgetUsedForYear(selectedBudgetYear);
+
+      // 4) การ์ดสรุป
       let totalBudget = 0, totalUsed = 0;
-      settings.budgetItems.forEach(item => { totalBudget += item.budgetAmount; totalUsed += (usedMap[item.id] || 0); });
+      items.forEach(item => { totalBudget += (parseFloat(item.budgetAmount)||0); totalUsed += calcBudgetItemUsed(item, autoUsedMap); });
       const totalRemaining = totalBudget - totalUsed;
       const totalPct = totalBudget > 0 ? ((totalUsed / totalBudget) * 100).toFixed(1) : 0;
 
       const setEl = (id, v) => { const e = document.getElementById(id); if (e) e.innerText = v; };
-      setEl("bsum-total", totalBudget.toLocaleString());
-      setEl("bsum-used", totalUsed.toLocaleString());
-      setEl("bsum-remaining", totalRemaining.toLocaleString());
+      setEl("bsum-total", "฿" + totalBudget.toLocaleString());
+      setEl("bsum-used", "฿" + totalUsed.toLocaleString());
+      setEl("bsum-remaining", "฿" + totalRemaining.toLocaleString());
       setEl("bsum-pct", totalPct + "%");
+      setEl("budget-table-count", `(${items.length} รายการ)`);
 
+      // 5) สิทธิ์
       const canManage = currentUser && currentUser.role === "Admin";
       const addBtn = document.getElementById("btn-add-budget-item");
       if (addBtn) addBtn.style.display = canManage ? "inline-flex" : "none";
@@ -5054,28 +4992,37 @@ ${printArea.outerHTML}
       const readonlyBadge = document.getElementById("budget-readonly-badge");
       if (readonlyBadge) readonlyBadge.style.display = (currentUser && currentUser.role === "Stock Manager") ? "inline-flex" : "none";
 
-      const tbody = document.getElementById("budget-items-tbody");
-      if (!tbody) return;
-
-      if (settings.budgetItems.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text-muted);">ยังไม่มีรายการงบประมาณ${canManage ? ' กด "เพิ่มรายการงบ" เพื่อเริ่มต้น' : ''}</td></tr>`;
-        return;
-      }
-
+      // 6) สีประจำโครงการ
       const projectColors = {};
       const colorPool = ["var(--primary)", "var(--secondary)", "var(--success)", "var(--warning)", "#8b5cf6", "#06b6d4"];
       let colorIdx = 0;
-      settings.budgetItems.forEach(item => {
+      items.forEach(item => {
         if (!projectColors[item.projectName]) { projectColors[item.projectName] = colorPool[colorIdx++ % colorPool.length]; }
       });
 
-      tbody.innerHTML = settings.budgetItems.map((item, idx) => {
-        const used = usedMap[item.id] || 0;
-        const remaining = item.budgetAmount - used;
-        const pct = item.budgetAmount > 0 ? ((used / item.budgetAmount) * 100).toFixed(1) : 0;
+      // 7) การ์ดความคืบหน้ารายโครงการ + กราฟ
+      renderBudgetProjectCards(items, autoUsedMap, projectColors, canManage);
+      renderBudgetCompareChart(items, autoUsedMap);
+
+      // 8) ตารางรายการ
+      const tbody = document.getElementById("budget-items-tbody");
+      if (!tbody) return;
+
+      if (items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text-muted);">ยังไม่มีรายการงบประมาณในปีนี้${canManage ? ' — กด "เพิ่มรายการงบ" เพื่อเริ่มต้น' : ''}</td></tr>`;
+        lucide.createIcons();
+        return;
+      }
+
+      tbody.innerHTML = items.map(item => {
+        const used = calcBudgetItemUsed(item, autoUsedMap);
+        const budget = parseFloat(item.budgetAmount) || 0;
+        const remaining = budget - used;
+        const pct = budget > 0 ? ((used / budget) * 100).toFixed(1) : 0;
         const pctNum = parseFloat(pct);
         const barColor = pctNum >= 85 ? "var(--danger)" : pctNum >= 70 ? "var(--warning)" : projectColors[item.projectName];
         const remainingStyle = remaining < 0 ? "color:var(--danger);font-weight:700;" : "";
+        const autoTag = autoUsedMap[item.id] !== undefined ? `<span title="คำนวณอัตโนมัติจากการเบิกจ่ายจริง" style="font-size:0.6rem;color:var(--success);border:1px solid var(--success);border-radius:4px;padding:0 3px;margin-left:4px;">AUTO</span>` : "";
         const actionsCell = canManage ? `
           <td style="text-align:center; white-space:nowrap;">
             <button class="btn btn-sm" style="padding:4px 10px; font-size:0.78rem; background:var(--bg-tertiary); color:var(--text-primary); margin-right:4px;" onclick="openBudgetItemModal('${item.id}')">
@@ -5084,21 +5031,21 @@ ${printArea.outerHTML}
             <button class="btn btn-sm" style="padding:4px 10px; font-size:0.78rem; background:rgba(239,68,68,0.1); color:var(--danger);" onclick="deleteBudgetItem('${item.id}')">
               <i data-lucide="trash-2" style="width:13px;height:13px;"></i> ลบ
             </button>
-          </td>` : `<td></td>`;
+          </td>` : (canManage === false && currentUser ? `<td></td>` : `<td></td>`);
         return `
           <tr>
-            <td style="font-size:0.82rem; color:var(--text-secondary);">${item.fiscalYear || '-'}</td>
+            <td style="font-size:0.82rem; color:var(--text-secondary); font-weight:600;">${item.fiscalYear || '-'}</td>
             <td style="font-size:0.82rem; color:${projectColors[item.projectName]}; font-weight:600;">${item.projectName}</td>
             <td style="font-size:0.85rem;">${item.categoryName}</td>
-            <td style="text-align:right; font-weight:600;">฿${item.budgetAmount.toLocaleString()}</td>
-            <td style="text-align:right; color:var(--warning);">฿${used.toLocaleString()}</td>
+            <td style="text-align:right; font-weight:600;">฿${budget.toLocaleString()}</td>
+            <td style="text-align:right; color:var(--warning);">฿${used.toLocaleString()}${autoTag}</td>
             <td style="text-align:right; ${remainingStyle}">฿${remaining.toLocaleString()}</td>
-            <td style="text-align:center; min-width:120px;">
+            <td style="text-align:center; min-width:130px;">
               <div style="display:flex;align-items:center;gap:6px;">
                 <div style="flex:1;height:6px;background:var(--bg-tertiary);border-radius:3px;overflow:hidden;">
                   <div style="width:${Math.min(pctNum,100)}%;height:100%;background:${barColor};transition:width 0.4s;"></div>
                 </div>
-                <span style="font-size:0.78rem;min-width:36px;font-weight:600;color:${barColor};">${pct}%</span>
+                <span style="font-size:0.78rem;min-width:40px;font-weight:600;color:${barColor};">${pct}%</span>
               </div>
             </td>
             <td style="font-size:0.8rem; color:var(--text-muted);">${item.note || ''}</td>
@@ -5107,6 +5054,129 @@ ${printArea.outerHTML}
       }).join("");
 
       lucide.createIcons();
+    }
+
+    // การ์ดความคืบหน้ารายโครงการ (จัดกลุ่มตามชื่อโครงการ)
+    function renderBudgetProjectCards(items, autoUsedMap, projectColors, canManage) {
+      const container = document.getElementById("budget-projects-container");
+      if (!container) return;
+
+      if (items.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:24px; color:var(--text-muted); font-size:0.85rem;">ยังไม่มีโครงการในปีงบนี้</div>`;
+        return;
+      }
+
+      // จัดกลุ่มตามโครงการ
+      const groups = {};
+      items.forEach(item => {
+        if (!groups[item.projectName]) groups[item.projectName] = [];
+        groups[item.projectName].push(item);
+      });
+
+      container.innerHTML = Object.keys(groups).map(projName => {
+        const groupItems = groups[projName];
+        const color = projectColors[projName] || "var(--primary)";
+        let pBudget = 0, pUsed = 0;
+        groupItems.forEach(it => { pBudget += (parseFloat(it.budgetAmount)||0); pUsed += calcBudgetItemUsed(it, autoUsedMap); });
+        const pPct = pBudget > 0 ? ((pUsed / pBudget) * 100).toFixed(1) : 0;
+        const pPctNum = parseFloat(pPct);
+        const totalBarColor = pPctNum >= 85 ? "var(--danger)" : pPctNum >= 70 ? "var(--warning)" : color;
+
+        const subBars = groupItems.map(it => {
+          const used = calcBudgetItemUsed(it, autoUsedMap);
+          const budget = parseFloat(it.budgetAmount) || 0;
+          const pct = budget > 0 ? ((used / budget) * 100).toFixed(1) : 0;
+          const pctNum = parseFloat(pct);
+          const subColor = pctNum >= 85 ? "var(--danger)" : pctNum >= 70 ? "var(--warning)" : color;
+          return `
+            <div style="margin-left:10px; margin-bottom:8px;">
+              <div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:4px; color:var(--text-secondary);">
+                <span>• ${it.categoryName}</span>
+                <span>฿${used.toLocaleString()} / ฿${budget.toLocaleString()} (${pct}%)</span>
+              </div>
+              <div style="background:var(--bg-tertiary); height:6px; border-radius:3px; overflow:hidden;">
+                <div style="width:${Math.min(pctNum,100)}%; height:100%; background:${subColor}; transition:width 0.4s ease;"></div>
+              </div>
+            </div>`;
+        }).join("");
+
+        return `
+          <div style="padding:16px; border:1px solid var(--border-color); border-radius:12px; background:var(--bg-secondary);">
+            <h4 style="font-weight:700; margin-bottom:12px; font-size:0.92rem; color:${color};">${projName}</h4>
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:6px;">
+              <span>วงเงินรวม: <strong>฿${pBudget.toLocaleString()}</strong></span>
+              <span>ใช้ไป: ฿${pUsed.toLocaleString()} (<strong style="color:${totalBarColor};">${pPct}%</strong>)</span>
+            </div>
+            <div style="background:var(--bg-tertiary); height:10px; border-radius:5px; overflow:hidden; margin-bottom:14px;">
+              <div style="width:${Math.min(pPctNum,100)}%; height:100%; background:${totalBarColor}; transition:width 0.4s ease;"></div>
+            </div>
+            ${subBars}
+            <div style="text-align:right; font-size:0.78rem; color:var(--text-secondary); margin-top:4px;">คงเหลือ: <strong style="color:${(pBudget-pUsed)<0?'var(--danger)':'var(--success)'};">฿${(pBudget-pUsed).toLocaleString()}</strong></div>
+          </div>`;
+      }).join("");
+    }
+
+    // กราฟแท่งเปรียบเทียบ งบประมาณ vs ใช้ไปแล้ว รายโครงการ
+    function renderBudgetCompareChart(items, autoUsedMap) {
+      const canvas = document.getElementById("budgetCompareChart");
+      if (!canvas) return;
+      const isDark = document.body.getAttribute("data-theme") === "dark";
+      const labelColor = isDark ? "#d1d5db" : "#334155";
+      const gridColor = isDark ? "#374151" : "#e2e8f0";
+
+      // จัดกลุ่มตามโครงการ
+      const groups = {};
+      items.forEach(item => {
+        if (!groups[item.projectName]) groups[item.projectName] = { budget: 0, used: 0 };
+        groups[item.projectName].budget += (parseFloat(item.budgetAmount)||0);
+        groups[item.projectName].used += calcBudgetItemUsed(item, autoUsedMap);
+      });
+
+      const projNames = Object.keys(groups);
+      // ย่อชื่อโครงการให้อ่านง่ายบนแกน
+      const shortLabels = projNames.map(n => {
+        const m = n.match(/โครงการที่\s*\d+/);
+        return m ? m[0] : (n.length > 18 ? n.slice(0, 18) + "…" : n);
+      });
+
+      if (budgetCompareChartRef) budgetCompareChartRef.destroy();
+      if (projNames.length === 0) {
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        return;
+      }
+
+      budgetCompareChartRef = new Chart(canvas.getContext("2d"), {
+        type: 'bar',
+        data: {
+          labels: shortLabels,
+          datasets: [
+            { label: 'วงเงินงบประมาณ', data: projNames.map(n => groups[n].budget), backgroundColor: 'rgba(96,165,250,0.85)', borderRadius: 4 },
+            { label: 'ใช้ไปแล้ว', data: projNames.map(n => groups[n].used), backgroundColor: 'rgba(248,113,113,0.85)', borderRadius: 4 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: labelColor, font: { family: 'Sarabun', size: 10 } } },
+            y: {
+              beginAtZero: true, grid: { color: gridColor },
+              ticks: { color: labelColor, font: { family: 'Sarabun', size: 9 }, callback: v => '฿' + (v >= 1000 ? (v/1000) + 'k' : v) }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: ctx => projNames[ctx[0].dataIndex],
+                label: ctx => ` ${ctx.dataset.label}: ฿${(ctx.raw||0).toLocaleString()}`
+              }
+            }
+          }
+        }
+      });
     }
 
     function openBudgetItemModal(itemId = null) {
@@ -5121,7 +5191,11 @@ ${printArea.outerHTML}
       const projEl = document.getElementById("budget-item-project");
       const catEl = document.getElementById("budget-item-category");
       const amtEl = document.getElementById("budget-item-amount");
+      const usedEl = document.getElementById("budget-item-used");
+      const usedHint = document.getElementById("budget-item-used-hint");
       const noteEl = document.getElementById("budget-item-note");
+
+      const autoKeys = ["budgetProj1CatA","budgetProj1CatB","budgetProj2CatA","budgetProj2CatB"];
 
       if (itemId) {
         const item = settings.budgetItems.find(b => b.id === itemId);
@@ -5132,17 +5206,28 @@ ${printArea.outerHTML}
         projEl.value = item.projectName;
         catEl.value = item.categoryName;
         amtEl.value = item.budgetAmount;
+        usedEl.value = item.usedAmount || 0;
         noteEl.value = item.note || "";
+        const isAuto = autoKeys.includes(item.id);
+        usedEl.disabled = isAuto;
+        if (usedHint) usedHint.style.display = isAuto ? "block" : "none";
       } else {
         titleEl.innerText = "เพิ่มรายการงบประมาณ";
         idEl.value = "";
-        fyEl.value = "";
+        // ปีงบเริ่มต้น = ปีที่กำลังดูอยู่ (ถ้าไม่ใช่ "ทุกปี") หรือปีงบปัจจุบัน
+        const defaultFy = (selectedBudgetYear && selectedBudgetYear !== "__all__")
+          ? selectedBudgetYear : String(getFiscalYear(new Date()) + 543);
+        fyEl.value = defaultFy;
         projEl.value = "";
         catEl.value = "";
         amtEl.value = "";
+        usedEl.value = "";
+        usedEl.disabled = false;
         noteEl.value = "";
+        if (usedHint) usedHint.style.display = "none";
       }
       openModal("modal-budget-item");
+      if (window.lucide) lucide.createIcons();
     }
 
     function saveBudgetItemFromModal() {
@@ -5151,14 +5236,15 @@ ${printArea.outerHTML}
       const projectName = document.getElementById("budget-item-project").value.trim();
       const categoryName = document.getElementById("budget-item-category").value.trim();
       const budgetAmount = parseFloat(document.getElementById("budget-item-amount").value) || 0;
+      const usedAmount = parseFloat(document.getElementById("budget-item-used").value) || 0;
       const note = document.getElementById("budget-item-note").value.trim();
 
       if (!fiscalYear || !projectName || !categoryName) {
         showToast("ข้อมูลไม่ครบ", "กรุณากรอกปีงบประมาณ ชื่อโครงการ และประเภทให้ครบถ้วน", "warning");
         return;
       }
-      if (budgetAmount < 0) {
-        showToast("ข้อมูลไม่ถูกต้อง", "วงเงินงบประมาณต้องมากกว่าหรือเท่ากับ 0", "warning");
+      if (budgetAmount < 0 || usedAmount < 0) {
+        showToast("ข้อมูลไม่ถูกต้อง", "วงเงินและยอดใช้ไปต้องมากกว่าหรือเท่ากับ 0", "warning");
         return;
       }
 
@@ -5179,14 +5265,18 @@ ${printArea.outerHTML}
               settings.budgetItems[idx].projectName = projectName;
               settings.budgetItems[idx].categoryName = categoryName;
               settings.budgetItems[idx].budgetAmount = budgetAmount;
+              settings.budgetItems[idx].usedAmount = usedAmount;
               settings.budgetItems[idx].note = note;
             }
           } else {
             const newId = "budget_" + Date.now();
-            settings.budgetItems.push({ id: newId, fiscalYear, projectName, categoryName, budgetAmount, note });
+            settings.budgetItems.push({ id: newId, fiscalYear, projectName, categoryName, budgetAmount, usedAmount, note });
           }
           _syncBudgetToOldKeys();
+          // เลือกปีที่เพิ่งบันทึกให้เห็นทันที
+          selectedBudgetYear = fiscalYear;
           localStorage.setItem("nkp_parts_settings", JSON.stringify(settings));
+          triggerCloudSync();
           showToast(isEdit ? "แก้ไขแล้ว" : "เพิ่มแล้ว", `${categoryName} — ฿${budgetAmount.toLocaleString()}`, "success");
           renderBudgetTab();
           updateDashboard();
@@ -5208,6 +5298,7 @@ ${printArea.outerHTML}
         onConfirm: () => {
           settings.budgetItems = settings.budgetItems.filter(b => b.id !== itemId);
           localStorage.setItem("nkp_parts_settings", JSON.stringify(settings));
+          triggerCloudSync();
           showToast("ลบแล้ว", `ลบรายการ "${item.categoryName}" เรียบร้อย`, "success");
           renderBudgetTab();
           updateDashboard();
