@@ -1447,12 +1447,13 @@
             <div class="chart-container" style="height: 280px;">
               <canvas id="urgentStockChart"></canvas>
             </div>
-            <div style="display:flex; gap:16px; flex-wrap:wrap; padding: 8px 16px 12px; font-size:0.75rem; color:var(--text-secondary);">
+            <div style="display:flex; gap:16px; flex-wrap:wrap; padding: 8px 16px 4px; font-size:0.75rem; color:var(--text-secondary);">
               <span><span style="display:inline-block;width:12px;height:12px;background:#60a5fa;border-radius:2px;margin-right:4px;"></span>สต็อกสูงสุด</span>
               <span><span style="display:inline-block;width:12px;height:12px;background:#34d399;border-radius:2px;margin-right:4px;"></span>สต็อกขั้นต่ำ</span>
               <span><span style="display:inline-block;width:12px;height:12px;background:#fbbf24;border-radius:2px;margin-right:4px;"></span>จุดสั่งซื้อ</span>
               <span><span style="display:inline-block;width:12px;height:12px;background:#f87171;border-radius:2px;margin-right:4px;"></span>คงคลังจริง</span>
             </div>
+            <div id="urgent-stock-parts-index" style="padding: 0 16px 12px;"></div>
           </div>
           <!-- ABC Distribution -->
           <div class="card" style="flex: 1; min-width: 0;">
@@ -4807,7 +4808,8 @@ ${printArea.outerHTML}
         return;
       }
 
-      const labels = urgentParts.map(p => p.code);
+      const truncate = (str, n) => str && str.length > n ? str.substring(0, n) + '…' : (str || '-');
+      const labels = urgentParts.map(p => [p.code || '-', truncate(p.name, 14)]);
       urgentStockChartRef = new Chart(canvas.getContext("2d"), {
         type: 'bar',
         data: {
@@ -4846,7 +4848,15 @@ ${printArea.outerHTML}
           scales: {
             x: {
               grid: { display: false },
-              ticks: { color: labelColor, font: { family: 'Sarabun', size: 10 } }
+              ticks: {
+                color: labelColor,
+                font: ctx => ctx.tick && ctx.tick.label && ctx.index === 0
+                  ? { family: 'Sarabun', size: 10 }
+                  : { family: 'Sarabun', size: 10 },
+                maxRotation: 0,
+                minRotation: 0,
+                callback: function(val, idx) { return this.getLabelForValue(val); }
+              }
             },
             y: {
               beginAtZero: true,
@@ -4861,7 +4871,7 @@ ${printArea.outerHTML}
               callbacks: {
                 title: ctx => {
                   const p = urgentParts[ctx[0].dataIndex];
-                  return `${p.code} — ${p.name}`;
+                  return `${p.code || '-'} — ${p.name}`;
                 },
                 label: ctx => ` ${ctx.dataset.label}: ${ctx.raw} ชิ้น`
               }
@@ -4869,6 +4879,30 @@ ${printArea.outerHTML}
           }
         }
       });
+
+      // Render parts reference index below chart
+      const indexDiv = document.getElementById("urgent-stock-parts-index");
+      if (indexDiv) {
+        const rows = urgentParts.map(p => {
+          const ss = getStockState(p);
+          const es = getExpiryState(p.expiryDate);
+          let sc = "#fbbf24", sl = "สต็อกต่ำ";
+          if (ss.status === "Out of Stock") { sc = "#ef4444"; sl = "หมดสต็อก"; }
+          else if (ss.status === "Low Stock") { sc = "#f97316"; sl = "สต็อกต่ำ"; }
+          if (es.status === "Expired") { sc = "#ef4444"; sl = "หมดอายุ"; }
+          else if (es.status === "Near Expiry" && ss.status !== "Out of Stock") { sc = "#fbbf24"; sl = "ใกล้หมดอายุ"; }
+          const code = p.code || '—';
+          return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px dashed var(--border-color);">
+            <code style="background:var(--bg-secondary);color:var(--primary);font-size:0.7rem;padding:2px 6px;border-radius:4px;white-space:nowrap;min-width:72px;text-align:center;flex-shrink:0;">${code}</code>
+            <span style="color:var(--text-primary);font-size:0.75rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${p.name}">${p.name}</span>
+            <span style="background:${sc}22;color:${sc};font-size:0.68rem;padding:2px 7px;border-radius:10px;white-space:nowrap;flex-shrink:0;font-weight:600;">${sl}</span>
+          </div>`;
+        }).join('');
+        indexDiv.innerHTML = `<div style="border-top:1px solid var(--border-color);padding-top:8px;margin-top:4px;">
+          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:600;letter-spacing:0.04em;margin-bottom:5px;">รายการอะไหล่ในกราฟ (${urgentParts.length} รายการ)</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0 16px;">${rows}</div>
+        </div>`;
+      }
     }
 
     // ---------- BUDGET TAB FUNCTIONS ----------
