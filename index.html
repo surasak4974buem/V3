@@ -1449,8 +1449,10 @@
                 <span id="abc-toggle-label">ซ่อนกราฟ ABC</span>
               </button>
             </div>
-            <div class="chart-container" style="height: 280px;">
-              <canvas id="urgentStockChart"></canvas>
+            <div class="chart-container" id="urgent-chart-scroll" style="height: 380px; min-height: 380px; max-height: 380px; overflow-x: auto; overflow-y: hidden; justify-content: flex-start;">
+              <div id="urgent-chart-inner" style="height: 100%; min-width: 100%; flex: 0 0 auto;">
+                <canvas id="urgentStockChart"></canvas>
+              </div>
             </div>
             <div style="display:flex; gap:16px; flex-wrap:wrap; padding: 8px 16px 4px; font-size:0.75rem; color:var(--text-secondary);">
               <span><span style="display:inline-block;width:12px;height:12px;background:#60a5fa;border-radius:2px;margin-right:4px;"></span>สต็อกสูงสุด</span>
@@ -4138,6 +4140,9 @@ function sendLineNotify(flexMessage, token, groupId) {
         document.getElementById("live-time-display").innerText = now.toLocaleString("th-TH");
       }, 1000);
 
+      // อัปเดตกราฟ/ตารางสต็อกวิกฤตแบบเรียลไทม์เมื่อฐานข้อมูลอะไหล่ถูกแก้ไข
+      setInterval(refreshUrgentStockIfChanged, 3000);
+
       document.getElementById("catalog-search").addEventListener("input", renderCatalog);
       document.getElementById("catalog-filter-abc").addEventListener("change", renderCatalog);
       document.getElementById("catalog-filter-status").addEventListener("change", renderCatalog);
@@ -4814,8 +4819,19 @@ ${printArea.outerHTML}
         return;
       }
 
-      const truncate = (str, n) => str && str.length > n ? str.substring(0, n) + '…' : (str || '-');
-      const labels = urgentParts.map(p => [p.code || '-', truncate(p.name, 14)]);
+      // แกน x แสดงเฉพาะ "รหัส" (ชื่อเต็มดูได้จาก tooltip ตอนเอาเมาส์ชี้)
+      const labels = urgentParts.map(p => (p.code && String(p.code).trim()) ? p.code : '--');
+
+      // ยืดหยุ่นตามจำนวนรายการ: คำนวณความกว้างกราฟใหม่ทุกครั้ง (เพิ่ม/ลดรายการแล้วปรับเอง)
+      // น้อยรายการ -> เต็มความกว้าง, มากรายการ -> ขยายกว้าง + เลื่อนแนวนอน เพื่อให้แท่ง/รหัสใหญ่อ่านง่าย
+      const scrollBox = document.getElementById("urgent-chart-scroll");
+      const innerBox = document.getElementById("urgent-chart-inner");
+      if (innerBox && scrollBox) {
+        const perGroup = 54; // px ต่อ 1 รายการ (4 แท่ง) — ปรับให้แท่งใหญ่ขึ้น
+        const needed = urgentParts.length * perGroup;
+        const avail = scrollBox.clientWidth || 600;
+        innerBox.style.width = Math.max(avail, needed) + "px";
+      }
       urgentStockChartRef = new Chart(canvas.getContext("2d"), {
         type: 'bar',
         data: {
@@ -4856,12 +4872,11 @@ ${printArea.outerHTML}
               grid: { display: false },
               ticks: {
                 color: labelColor,
-                font: ctx => ctx.tick && ctx.tick.label && ctx.index === 0
-                  ? { family: 'Sarabun', size: 10 }
-                  : { family: 'Sarabun', size: 10 },
-                maxRotation: 0,
-                minRotation: 0,
-                callback: function(val, idx) { return this.getLabelForValue(val); }
+                font: { family: 'Sarabun', size: 12, weight: '600' }, // รหัสตัวใหญ่ขึ้น
+                maxRotation: 50,   // เฉียงตามทิศลูกศร
+                minRotation: 50,
+                autoSkip: false,   // แสดงรหัสครบทุกแท่ง
+                callback: function(val) { return this.getLabelForValue(val); }
               }
             },
             y: {
@@ -4886,28 +4901,65 @@ ${printArea.outerHTML}
         }
       });
 
-      // Render parts reference index below chart
+      // Render parts reference table below chart (รหัส/ชื่อ/ตำแหน่ง/คงเหลือ/จุดต่ำสุด/สถานะ — ไม่แสดงผู้จัดจำหน่าย)
       const indexDiv = document.getElementById("urgent-stock-parts-index");
       if (indexDiv) {
-        const rows = urgentParts.map(p => {
+        const cellBase = "padding:4px 8px; font-size:0.7rem; vertical-align:middle; border-bottom:1px dashed var(--border-color);";
+        const rows = urgentParts.map((p, i) => {
           const ss = getStockState(p);
           const es = getExpiryState(p.expiryDate);
-          let sc = "#fbbf24", sl = "สต็อกต่ำ";
-          if (ss.status === "Out of Stock") { sc = "#ef4444"; sl = "หมดสต็อก"; }
-          else if (ss.status === "Low Stock") { sc = "#f97316"; sl = "สต็อกต่ำ"; }
-          if (es.status === "Expired") { sc = "#ef4444"; sl = "หมดอายุ"; }
-          else if (es.status === "Near Expiry" && ss.status !== "Out of Stock") { sc = "#fbbf24"; sl = "ใกล้หมดอายุ"; }
-          const code = p.code || '—';
-          return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px dashed var(--border-color);">
-            <code style="background:var(--bg-secondary);color:var(--primary);font-size:0.7rem;padding:2px 6px;border-radius:4px;white-space:nowrap;min-width:72px;text-align:center;flex-shrink:0;">${code}</code>
-            <span style="color:var(--text-primary);font-size:0.75rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${p.name}">${p.name}</span>
-            <span style="background:${sc}22;color:${sc};font-size:0.68rem;padding:2px 7px;border-radius:10px;white-space:nowrap;flex-shrink:0;font-weight:600;">${sl}</span>
-          </div>`;
+          // สถานะปัญหา — อาจมีหลายป้าย (สต็อก + วันหมดอายุ)
+          let badges = "";
+          if (ss.status === "Out of Stock") badges += `<span style="background:#ef444422;color:#ef4444;font-size:0.66rem;padding:1px 7px;border-radius:10px;font-weight:600;white-space:nowrap;">หมดสต็อก</span> `;
+          else if (ss.status === "Low Stock") badges += `<span style="background:#f9731622;color:#f97316;font-size:0.66rem;padding:1px 7px;border-radius:10px;font-weight:600;white-space:nowrap;">สต็อกต่ำ</span> `;
+          if (es.status === "Expired") badges += `<span style="background:#ef444422;color:#ef4444;font-size:0.66rem;padding:1px 7px;border-radius:10px;font-weight:600;white-space:nowrap;">หมดอายุ</span>`;
+          else if (es.status === "Near Expiry") badges += `<span style="background:#fbbf2422;color:#d97706;font-size:0.66rem;padding:1px 7px;border-radius:10px;font-weight:600;white-space:nowrap;">ใกล้หมดอายุ</span>`;
+          // คงเหลือต่ำ -> เน้นสีแดง
+          const lowStock = ss.status === "Out of Stock" || ss.status === "Low Stock";
+          const code = (p.code && String(p.code).trim()) ? p.code : "--";
+          const loc = (p.location && String(p.location).trim()) ? p.location : "--";
+          const rowBg = i % 2 === 1 ? "background:var(--bg-secondary);" : "";
+          return `<tr style="${rowBg}">
+            <td style="${cellBase}"><code style="background:var(--bg-tertiary);color:var(--primary);font-size:0.68rem;padding:2px 6px;border-radius:4px;white-space:nowrap;font-weight:600;">${code}</code></td>
+            <td style="${cellBase} max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-primary);" title="${p.name || ''}">${p.name || "--"}</td>
+            <td style="${cellBase} white-space:nowrap; color:var(--text-secondary);">${loc}</td>
+            <td style="${cellBase} text-align:center; font-weight:700; color:${lowStock ? '#ef4444' : 'var(--text-primary)'};">${(p.inStock !== undefined && p.inStock !== null) ? p.inStock : "--"}</td>
+            <td style="${cellBase} text-align:center; white-space:nowrap; color:var(--text-secondary);">${(p.minStock ?? "--")} / ${(p.reorderPoint ?? "--")}</td>
+            <td style="${cellBase} white-space:nowrap;">${badges || '<span style="color:var(--text-muted);">--</span>'}</td>
+          </tr>`;
         }).join('');
         indexDiv.innerHTML = `<div style="border-top:1px solid var(--border-color);padding-top:8px;margin-top:4px;">
-          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:600;letter-spacing:0.04em;margin-bottom:5px;">อะไหล่ที่ต้องดำเนินการเร่งด่วน (${urgentParts.length} รายการ)</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0 16px;">${rows}</div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:600;letter-spacing:0.04em;margin-bottom:6px;">อะไหล่ที่ต้องดำเนินการเร่งด่วน (${urgentParts.length} รายการ)</div>
+          <div style="max-height:280px; overflow-y:auto; border:1px solid var(--border-color); border-radius:8px;">
+            <table style="width:100%; border-collapse:collapse;">
+              <thead>
+                <tr style="position:sticky; top:0; z-index:1; background:var(--bg-tertiary);">
+                  <th style="padding:6px 8px; font-size:0.66rem; text-align:left; color:var(--text-secondary); font-weight:700; white-space:nowrap;">รหัสอะไหล่</th>
+                  <th style="padding:6px 8px; font-size:0.66rem; text-align:left; color:var(--text-secondary); font-weight:700;">ชื่ออะไหล่</th>
+                  <th style="padding:6px 8px; font-size:0.66rem; text-align:left; color:var(--text-secondary); font-weight:700; white-space:nowrap;">ตำแหน่งจัดเก็บ</th>
+                  <th style="padding:6px 8px; font-size:0.66rem; text-align:center; color:var(--text-secondary); font-weight:700; white-space:nowrap;">คงเหลือ (ชิ้น)</th>
+                  <th style="padding:6px 8px; font-size:0.66rem; text-align:center; color:var(--text-secondary); font-weight:700; white-space:nowrap;">จุดต่ำสุด/สั่งซื้อ</th>
+                  <th style="padding:6px 8px; font-size:0.66rem; text-align:left; color:var(--text-secondary); font-weight:700; white-space:nowrap;">สถานะปัญหา</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
         </div>`;
+      }
+    }
+
+    // Realtime: ตรวจการเปลี่ยนแปลงข้อมูลอะไหล่ แล้ว re-render กราฟ/ตารางสต็อกวิกฤตเฉพาะเมื่อข้อมูลเปลี่ยนจริง
+    let _urgentDataSignature = "";
+    function refreshUrgentStockIfChanged() {
+      const dash = document.getElementById("tab-dashboard");
+      if (!dash || !dash.classList.contains("active")) return; // ทำงานเฉพาะตอนอยู่หน้าแดชบอร์ด
+      const sig = (parts || []).map(p =>
+        `${p.code || ''}|${p.inStock}|${p.minStock}|${p.reorderPoint}|${p.location || ''}|${p.expiryDate || ''}|${p.name || ''}`
+      ).join(";");
+      if (sig !== _urgentDataSignature) {
+        _urgentDataSignature = sig;
+        renderUrgentStockChart();
       }
     }
 
@@ -4925,9 +4977,9 @@ ${printArea.outerHTML}
       if (label) label.textContent = abcCardCollapsed ? "แสดงกราฟ ABC" : "ซ่อนกราฟ ABC";
       if (iconEl) iconEl.setAttribute("data-lucide", abcCardCollapsed ? "chevrons-left" : "chevrons-right");
       if (window.lucide) lucide.createIcons();
-      // คำนวณขนาด canvas ใหม่หลัง layout เปลี่ยน เพื่อให้กราฟไม่ผิดสัดส่วน
+      // re-render กราฟแท่งใหม่หลัง layout เปลี่ยน เพื่อคำนวณความกว้าง/รหัสใหม่ตามพื้นที่ที่มี
       setTimeout(() => {
-        if (urgentStockChartRef) urgentStockChartRef.resize();
+        renderUrgentStockChart();
         if (abcChartRef && !abcCardCollapsed) abcChartRef.resize();
       }, 80);
     }
