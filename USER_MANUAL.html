@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>คู่มือการใช้งาน | ระบบควบคุมคลังอะไหล่แพทย์ รพ.นครพิงค์</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0f766e;
+      --primary-light: #14b8a6;
+      --primary-soft: #ccfbf1;
+      --secondary: #1d4ed8;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --success: #16a34a;
+      --ink: #0f172a;
+      --text: #1e293b;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --radius: 14px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.65;
+      font-size: 16px;
+    }
+    .layout { display: grid; grid-template-columns: 280px 1fr; max-width: 1400px; margin: 0 auto; }
+
+    /* ── Sidebar TOC ── */
+    .toc {
+      position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+      background: var(--ink); color: #cbd5e1; padding: 28px 22px;
+    }
+    .toc .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .toc .brand .logo {
+      width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--primary-light), var(--primary));
+      display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 0.95rem;
+    }
+    .toc .brand .t1 { font-weight: 700; color: #fff; font-size: 0.95rem; line-height: 1.2; }
+    .toc .brand .t2 { font-size: 0.72rem; color: #94a3b8; }
+    .toc .doc-label { font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; color: #64748b; margin: 22px 0 10px; }
+    .toc ol { list-style: none; counter-reset: ch; }
+    .toc ol li { counter-increment: ch; }
+    .toc ol li a {
+      display: flex; gap: 10px; align-items: baseline; padding: 8px 10px; border-radius: 8px;
+      color: #cbd5e1; text-decoration: none; font-size: 0.86rem; transition: all .15s;
+    }
+    .toc ol li a::before { content: counter(ch); color: var(--primary-light); font-weight: 700; min-width: 18px; }
+    .toc ol li a:hover { background: rgba(20,184,166,.12); color: #fff; }
+    .toc .foot { margin-top: 24px; padding-top: 16px; border-top: 1px solid #1e293b; font-size: 0.72rem; color: #64748b; }
+
+    /* ── Content ── */
+    .content { padding: 48px 56px; max-width: 980px; }
+    header.doc-head {
+      background: linear-gradient(135deg, var(--primary), #0b5650);
+      color: #fff; border-radius: 18px; padding: 40px 44px; margin-bottom: 40px;
+      box-shadow: 0 20px 40px -20px rgba(15,118,110,.6);
+    }
+    header.doc-head .eyebrow { font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; opacity: .85; }
+    header.doc-head h1 { font-size: 2rem; font-weight: 800; margin: 8px 0 6px; }
+    header.doc-head p { opacity: .9; font-size: 1rem; }
+    header.doc-head .meta { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 20px; font-size: 0.82rem; }
+    header.doc-head .meta span { background: rgba(255,255,255,.14); padding: 6px 14px; border-radius: 20px; }
+
+    section.chapter { margin-bottom: 56px; scroll-margin-top: 20px; }
+    .ch-head { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 2px solid var(--line); }
+    .ch-num {
+      width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0;
+      background: var(--primary-soft); color: var(--primary); display: grid; place-items: center;
+      font-weight: 800; font-size: 1.2rem;
+    }
+    .ch-head h2 { font-size: 1.4rem; font-weight: 700; color: var(--ink); line-height: 1.25; }
+    .ch-head .sub { font-size: 0.85rem; color: var(--muted); font-weight: 400; }
+
+    p.lead { font-size: 1.02rem; color: var(--text); margin-bottom: 18px; }
+    .fig { margin: 22px 0; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); box-shadow: 0 8px 24px -12px rgba(15,23,42,.25); background: var(--ink); }
+    .fig img { width: 100%; display: block; }
+    .fig figcaption { background: var(--card); padding: 10px 16px; font-size: 0.82rem; color: var(--muted); border-top: 1px solid var(--line); }
+    .fig figcaption b { color: var(--primary); }
+
+    .steps { list-style: none; counter-reset: st; margin: 16px 0; }
+    .steps li { counter-increment: st; position: relative; padding: 8px 0 8px 42px; border-bottom: 1px dashed var(--line); }
+    .steps li:last-child { border-bottom: none; }
+    .steps li::before {
+      content: counter(st); position: absolute; left: 0; top: 8px;
+      width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: #fff;
+      display: grid; place-items: center; font-size: 0.8rem; font-weight: 700;
+    }
+    .steps li b { color: var(--ink); }
+    .steps li code, .inline-code {
+      background: #eef2ff; color: var(--secondary); padding: 1px 7px; border-radius: 5px;
+      font-family: ui-monospace, monospace; font-size: 0.85em; font-weight: 600;
+    }
+
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 18px 0; }
+    .feature { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+    .feature .ic { font-size: 1.3rem; margin-bottom: 6px; }
+    .feature h4 { font-size: 0.92rem; color: var(--ink); margin-bottom: 4px; }
+    .feature p { font-size: 0.82rem; color: var(--muted); }
+
+    .callout { display: flex; gap: 12px; padding: 14px 18px; border-radius: 12px; margin: 18px 0; font-size: 0.9rem; }
+    .callout .ic { font-size: 1.2rem; flex-shrink: 0; }
+    .callout.tip { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+    .callout.warn { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+    .callout.danger { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+    .callout b { font-weight: 700; }
+
+    .role-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+    .role-table th, .role-table td { border: 1px solid var(--line); padding: 10px 12px; text-align: left; vertical-align: top; }
+    .role-table th { background: var(--primary-soft); color: var(--primary); font-weight: 700; }
+    .role-table td:first-child { font-weight: 600; color: var(--ink); white-space: nowrap; }
+    .badge { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 0.72rem; font-weight: 700; }
+    .b-admin { background: #fee2e2; color: #b91c1c; }
+    .b-mgr { background: #dbeafe; color: #1d4ed8; }
+    .b-user { background: #dcfce7; color: #15803d; }
+
+    footer.doc-foot { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 0.82rem; color: var(--muted); text-align: center; }
+
+    /* ── Print ── */
+    @media print {
+      body { background: #fff; font-size: 11.5pt; }
+      .layout { grid-template-columns: 1fr; }
+      .toc { display: none; }
+      .content { padding: 0; max-width: 100%; }
+      header.doc-head { box-shadow: none; }
+      section.chapter { page-break-inside: avoid; }
+      .fig { page-break-inside: avoid; box-shadow: none; }
+      .fig img { max-height: 480px; object-fit: contain; }
+      a { color: inherit; text-decoration: none; }
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .toc { position: static; height: auto; }
+      .content { padding: 28px 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ───────────── TABLE OF CONTENTS ───────────── -->
+  <nav class="toc">
+    <div class="brand">
+      <div class="logo">NKP</div>
+      <div>
+        <div class="t1">รพ.นครพิงค์</div>
+        <div class="t2">ศูนย์เครื่องมือแพทย์</div>
+      </div>
+    </div>
+    <div class="doc-label">สารบัญคู่มือ</div>
+    <ol>
+      <li><a href="#ch1">การเข้าสู่ระบบ</a></li>
+      <li><a href="#ch2">แดชบอร์ดภาพรวม</a></li>
+      <li><a href="#ch3">คลังอะไหล่และอุปกรณ์</a></li>
+      <li><a href="#ch4">เบิกจ่ายและรับเข้าคลัง</a></li>
+      <li><a href="#ch5">ประวัติคลัง (Ledger Logs)</a></li>
+      <li><a href="#ch6">แผนบำรุงรักษาเชิงรุก (PM)</a></li>
+      <li><a href="#ch7">ใบขอจัดซื้ออะไหล่</a></li>
+      <li><a href="#ch8">แผนงบประมาณประจำปี</a></li>
+      <li><a href="#ch9">ระบบจัดการสิทธิ์ผู้ใช้</a></li>
+      <li><a href="#ch10">คลาวด์ &amp; LINE Settings</a></li>
+    </ol>
+    <div class="foot">
+      คู่มือฉบับ POC · ปรับปรุง 16 มิ.ย. 2569<br>
+      ระบบ CMMS คลังอะไหล่ศูนย์เครื่องมือแพทย์
+    </div>
+  </nav>
+
+  <!-- ───────────── CONTENT ───────────── -->
+  <main class="content">
+
+    <header class="doc-head">
+      <div class="eyebrow">USER MANUAL · คู่มือการใช้งาน</div>
+      <h1>ระบบควบคุมคลังอะไหล่แพทย์</h1>
+      <p>ศูนย์เครื่องมือแพทย์ โรงพยาบาลนครพิงค์ — ระบบบริหารคลังอะไหล่ &amp; แจ้งเตือน (SMM 07-1:2024)</p>
+      <div class="meta">
+        <span>🌐 surasak4974buem.github.io/V3</span>
+        <span>🔐 รหัสเริ่มต้น: NKP-admin-2026</span>
+        <span>📅 ฉบับ 16 มิ.ย. 2569</span>
+      </div>
+    </header>
+
+    <p class="lead">
+      คู่มือนี้อธิบายขั้นตอนการใช้งานระบบควบคุมคลังอะไหล่เครื่องมือแพทย์ทั้ง 10 โมดูล ตั้งแต่การเข้าสู่ระบบ
+      จนถึงการตั้งค่าเชื่อมต่อคลาวด์และ LINE โดยมีภาพประกอบจริงจากหน้าจอระบบในแต่ละขั้นตอน
+    </p>
+
+    <!-- ───── CH 1: LOGIN ───── -->
+    <section class="chapter" id="ch1">
+      <div class="ch-head">
+        <div class="ch-num">1</div>
+        <div>
+          <h2>การเข้าสู่ระบบ</h2>
+          <div class="sub">เข้าใช้งานระบบด้วยรหัสผ่านความปลอดภัย</div>
+        </div>
+      </div>
+      <p class="lead">เปิดเว็บเบราว์เซอร์แล้วเข้าสู่ที่อยู่ของระบบ จากนั้นกรอกรหัสผ่านเพื่อยืนยันตัวตน ระบบรองรับ 3 ระดับสิทธิ์ (Admin / Stock Manager / General User)</p>
+
+      <figure class="fig">
+        <img src="assets/manual/1.jpeg" alt="หน้าเข้าสู่ระบบ">
+        <figcaption><b>รูป 1.1</b> — หน้าเข้าสู่ระบบ พร้อมช่องกรอกรหัสผ่านและปุ่ม “เข้าสู่ระบบ (Sign In)” โดยมีรหัสผ่านเริ่มต้นแสดงไว้ด้านล่าง</figcaption>
+      </figure>
+
+      <ol class="steps">
+        <li>เปิดเบราว์เซอร์ไปที่ <code>https://surasak4974buem.github.io/V3/</code></li>
+        <li>คลิกที่ช่อง <b>“ระบุรหัสผ่านเข้าใช้งาน”</b> แล้วกรอกรหัสผ่าน (รหัสเริ่มต้นคือ <code>NKP-admin-2026</code>)</li>
+        <li>กดปุ่ม <b>“เข้าสู่ระบบ (Sign In)”</b></li>
+        <li>เมื่อเข้าสำเร็จจะมีหน้าต่าง <b>“เข้าสู่ระบบสำเร็จ”</b> ขึ้นมา ให้กด <b>“รับทราบ (Acknowledge)”</b> เพื่อเริ่มใช้งาน</li>
+      </ol>
+
+      <figure class="fig">
+        <img src="assets/manual/7.jpeg" alt="เข้าสู่ระบบสำเร็จ">
+        <figcaption><b>รูป 1.2</b> — กล่องยืนยัน “เข้าสู่ระบบสำเร็จ” ต้อนรับผู้ใช้ พร้อมปุ่ม “รับทราบ (Acknowledge)”</figcaption>
+      </figure>
+
+      <div class="callout warn">
+        <span class="ic">🔑</span>
+        <div><b>ควรเปลี่ยนรหัสผ่าน</b> หลังเข้าใช้งานครั้งแรก ผ่านเมนู “เปลี่ยนรหัส” ที่มุมล่างซ้าย เพื่อความปลอดภัยของระบบ</div>
+      </div>
+    </section>
+
+    <!-- ───── CH 2: DASHBOARD ───── -->
+    <section class="chapter" id="ch2">
+      <div class="ch-head">
+        <div class="ch-num">2</div>
+        <div>
+          <h2>แดชบอร์ดภาพรวม</h2>
+          <div class="sub">วิเคราะห์สถิติคลังสินค้า ความปลอดภัย และอัตราค่าบำรุงรักษา</div>
+        </div>
+      </div>
+      <p class="lead">หน้าแรกหลังเข้าสู่ระบบ แสดงภาพรวมสถานะคลังแบบเรียลไทม์ ทั้งจำนวนรายการ ความเสี่ยงสต็อกต่ำ มูลค่าคลังรวม และกราฟวิเคราะห์</p>
+
+      <figure class="fig">
+        <img src="assets/manual/8.jpeg" alt="แดชบอร์ดภาพรวม">
+        <figcaption><b>รูป 2.1</b> — แดชบอร์ดภาพรวม: การ์ดสรุป 4 ตัว (จำนวนอะไหล่ / ต่ำกว่าจุดสั่งซื้อ / ใกล้หมดอายุ / มูลค่ารวม), กราฟสต็อกวิกฤต, กราฟ ABC และตารางอะไหล่เร่งด่วน</figcaption>
+      </figure>
+
+      <div class="feature-grid">
+        <div class="feature"><div class="ic">📦</div><h4>การ์ดสรุปสถานะ</h4><p>จำนวนรายการทั้งหมด, อะไหล่ต่ำกว่าจุดสั่งซื้อ, ใกล้หมดอายุ และมูลค่าคลังรวม</p></div>
+        <div class="feature"><div class="ic">📊</div><h4>กราฟสต็อกวิกฤต</h4><p>เปรียบเทียบสต็อกสูงสุด / ขั้นต่ำ / จุดสั่งซื้อ / คงคลังจริง รายอะไหล่</p></div>
+        <div class="feature"><div class="ic">🥧</div><h4>การกระจาย ABC</h4><p>สัดส่วนอะไหล่กลุ่ม A (มูลค่าสูง) / B / C ตามหลัก ABC Analysis</p></div>
+        <div class="feature"><div class="ic">🔔</div><h4>ตารางเร่งด่วน</h4><p>รายการอะไหล่ที่ต้องดำเนินการ (ต่ำกว่าเกณฑ์ / หมดอายุ) พร้อมผู้จัดจำหน่าย</p></div>
+      </div>
+
+      <ol class="steps">
+        <li><b>ชี้ที่แท่งกราฟ</b> เพื่อดูรายละเอียดอะไหล่แต่ละรายการ (สต็อกสูงสุด/ขั้นต่ำ/จุดสั่งซื้อ/คงคลังจริง)</li>
+        <li>ใช้ปุ่ม <b>ย่อ/ขยายเมนู (&lt;)</b> มุมบนซ้าย เพื่อขยายพื้นที่แสดงผล</li>
+        <li>สลับ <b>โหมดกลางคืน (Dark Theme)</b> ได้จากสวิตช์มุมล่างซ้ายของเมนู</li>
+      </ol>
+
+      <figure class="fig">
+        <img src="assets/manual/9.jpeg" alt="ชี้ดูรายละเอียดกราฟ">
+        <figcaption><b>รูป 2.2</b> — เมื่อชี้เมาส์ที่แท่งกราฟ ระบบแสดงทูลทิปบอกค่าทั้ง 4 สถานะของอะไหล่รายการนั้น</figcaption>
+      </figure>
+    </section>
+
+    <!-- ───── CH 3: CATALOG ───── -->
+    <section class="chapter" id="ch3">
+      <div class="ch-head">
+        <div class="ch-num">3</div>
+        <div>
+          <h2>คลังอะไหล่และอุปกรณ์</h2>
+          <div class="sub">จัดการรายชื่ออะไหล่ สเปกทางเทคนิค และจุดสั่งซื้อที่ได้รับการระบุ</div>
+        </div>
+      </div>
+      <p class="lead">ทะเบียนอะไหล่หลัก (Master Catalog) แสดงรายการทั้งหมดพร้อมรหัส ชื่อ แบรนด์/ผู้ผลิต ระดับ ABC ตำแหน่งจัดเก็บ คงคลัง ราคา และวันหมดอายุ</p>
+
+      <figure class="fig">
+        <img src="assets/manual/13.jpeg" alt="คลังอะไหล่และอุปกรณ์">
+        <figcaption><b>รูป 3.1</b> — ตารางคลังอะไหล่: ช่องค้นหา, ตัวกรองกลุ่ม ABC และสถานะคลัง, ปุ่ม Export/Import CSV และปุ่ม “เพิ่มรายการอะไหล่ใหม่”</figcaption>
+      </figure>
+
+      <ol class="steps">
+        <li><b>ค้นหา</b> อะไหล่ด้วยรหัส ชื่อ หรือผู้ผลิต ในช่องค้นหาด้านบน</li>
+        <li><b>กรอง</b> ตามกลุ่ม ABC หรือสถานะคลัง (ปกติ / ต่ำ / หมด) จาก dropdown</li>
+        <li>กด <b>“เพิ่มรายการอะไหล่ใหม่”</b> เพื่อเพิ่มอะไหล่ พร้อมกำหนดสต็อกขั้นต่ำ จุดสั่งซื้อ และวันหมดอายุ</li>
+        <li>ใช้ <b>Export CSV / Import CSV</b> เพื่อนำข้อมูลออก/เข้าเป็นชุด</li>
+      </ol>
+
+      <div class="callout tip">
+        <span class="ic">🏷️</span>
+        <div>ป้าย <b>Class A/B/C</b> คำนวณอัตโนมัติจากมูลค่าคงคลัง (ราคา × จำนวน) เพื่อจัดลำดับความสำคัญในการบริหารสต็อก</div>
+      </div>
+    </section>
+
+    <!-- ───── CH 4: TRANSACTIONS ───── -->
+    <section class="chapter" id="ch4">
+      <div class="ch-head">
+        <div class="ch-num">4</div>
+        <div>
+          <h2>เบิกจ่ายและรับเข้าคลัง</h2>
+          <div class="sub">ทำกิจกรรม เบิก จ่าย รับของ ยืม คืน และตรวจสอบความถูกต้องของระบบคลัง</div>
+        </div>
+      </div>
+      <p class="lead">บันทึกการเคลื่อนไหวของอะไหล่ทุกประเภท ระบบบังคับกรอกซีเรียลเครื่องมือแพทย์และเลขใบแจ้งซ่อมเพื่อให้ตรวจสอบย้อนกลับได้ครบถ้วน</p>
+
+      <figure class="fig">
+        <img src="assets/manual/14.jpeg" alt="ฟอร์มเบิกจ่ายและรับเข้าคลัง">
+        <figcaption><b>รูป 4.1</b> — ฟอร์มทำรายการสินค้าคงคลัง: เลือกประเภทรายการ, เลือกอะไหล่, จำนวน, ซีเรียลเครื่อง, ประเภทงานซ่อม, เลขใบแจ้งซ่อม และหน่วยงานที่เบิก</figcaption>
+      </figure>
+
+      <ol class="steps">
+        <li>เลือก <b>ประเภทรายการ</b>: เบิกจ่ายไปซ่อมบำรุง (Issue) / รับเข้าคลัง (Receive) / ยืม-คืน</li>
+        <li>เลือก <b>อะไหล่ทางการแพทย์</b> จากรายการ (แสดงจำนวนคงเหลือกำกับ)</li>
+        <li>กรอก <b>จำนวน</b>, <b>ซีเรียลเครื่องมือแพทย์</b> (เช่น <code>MEC-MON-001</code>) และ <b>ประเภทงานซ่อม</b> (CM/PM)</li>
+        <li>ระบุ <b>เลขใบแจ้งซ่อม</b> (6 หลัก) และ <b>หน่วยงานที่เบิก</b> (เช่น OPD, ICU, MEC)</li>
+        <li>กดบันทึก — ระบบจะตัด/เพิ่มสต็อกและส่งแจ้งเตือน LINE ตามสถานะคงคลัง</li>
+      </ol>
+
+      <div class="callout warn">
+        <span class="ic">⚠️</span>
+        <div>ช่องที่มีเครื่องหมาย <b>*</b> เป็นข้อมูลบังคับ — โดยเฉพาะ <b>ซีเรียลเครื่อง</b> และ <b>เลขใบแจ้งซ่อม</b> เพื่อความถูกต้องในการตรวจสอบย้อนหลัง</div>
+      </div>
+    </section>
+
+    <!-- ───── CH 5: LEDGER ───── -->
+    <section class="chapter" id="ch5">
+      <div class="ch-head">
+        <div class="ch-num">5</div>
+        <div>
+          <h2>ประวัติคลัง (Ledger Logs)</h2>
+          <div class="sub">ตรวจสอบประวัติการเบิกจ่าย รับเข้า ยืมคืน อะไหล่สำรองคลังทั้งหมด</div>
+        </div>
+      </div>
+      <p class="lead">สมุดบัญชีคลัง (Ledger) บันทึกทุกธุรกรรมพร้อมวันเวลา ประเภท อะไหล่ จำนวน เลขเครื่อง/งาน ผู้ปฏิบัติงาน และสถานะการยืม</p>
+
+      <figure class="fig">
+        <img src="assets/manual/15.jpeg" alt="ประวัติคลัง Ledger Logs">
+        <figcaption><b>รูป 5.1</b> — ประวัติรายการคลัง: การ์ดสรุป (ทำรายการ/เบิก/รับเข้า/ยืม), ปุ่ม “สรุปรายงานประจำเดือน” และ Export CSV พร้อมตัวกรองประเภทและช่วงเวลา</figcaption>
+      </figure>
+
+      <ol class="steps">
+        <li><b>ค้นหา</b> ด้วยรหัสอะไหล่ ชื่ออะไหล่ ผู้ปฏิบัติงาน หรือเลขงาน</li>
+        <li><b>กรอง</b> ตามประเภทรายการ และช่วงเวลา (รายวัน/สัปดาห์/เดือน/ปีงบ)</li>
+        <li>กด <b>“สรุปรายงานประจำเดือน”</b> เพื่อสร้างรายงานการใช้อะไหล่รายเดือน</li>
+        <li>กด <b>Export CSV</b> เพื่อนำประวัติออกเป็นไฟล์</li>
+      </ol>
+    </section>
+
+    <!-- ───── CH 6: PM ───── -->
+    <section class="chapter" id="ch6">
+      <div class="ch-head">
+        <div class="ch-num">6</div>
+        <div>
+          <h2>แผนบำรุงรักษาเชิงรุก (PM)</h2>
+          <div class="sub">ตาราง PM ประจำปี และคาดการณ์ความต้องการวัสดุอะไหล่ในอนาคต</div>
+        </div>
+      </div>
+      <p class="lead">วางแผนบำรุงรักษาเชิงป้องกัน (Preventive Maintenance) พร้อมระบุอะไหล่ที่ต้องใช้ในแต่ละแผน และระบบคาดการณ์การเติมอะไหล่ล่วงหน้า</p>
+
+      <figure class="fig">
+        <img src="assets/manual/16.jpeg" alt="แผนบำรุงรักษาเชิงรุก">
+        <figcaption><b>รูป 6.1</b> — ตารางกำหนดการ PM: รหัสแผน, ชื่องาน, รุ่นเครื่อง, ความถี่, วันกำหนด, อะไหล่ที่ระบุ และช่างผู้รับผิดชอบ + ระบบคาดการณ์เติมอะไหล่ (Predictive Replenishment) และรายงานอะไหล่ขาดแคลน</figcaption>
+      </figure>
+
+      <ol class="steps">
+        <li>กด <b>“เพิ่มแผน PM”</b> เพื่อสร้างแผนใหม่ พร้อมระบุรุ่นเครื่อง ความถี่ และอะไหล่ที่ต้องใช้</li>
+        <li>ดู <b>วันกำหนดทำ</b> และช่างผู้รับผิดชอบในตาราง</li>
+        <li>เลือก <b>ช่วงเวลาคาดการณ์ล่วงหน้า</b> (เช่น 90 วัน) แล้วกดคำนวณ เพื่อดูความต้องการอะไหล่ล่วงหน้า</li>
+        <li>ตรวจ <b>รายงานอะไหล่ขาดแคลนตามแผน PM</b> (Shortage Report) เพื่อเตรียมจัดซื้อ</li>
+      </ol>
+    </section>
+
+    <!-- ───── CH 7: PROCUREMENT ───── -->
+    <section class="chapter" id="ch7">
+      <div class="ch-head">
+        <div class="ch-num">7</div>
+        <div>
+          <h2>ใบขอจัดซื้ออะไหล่</h2>
+          <div class="sub">ตรวจสอบชิ้นส่วนที่หมดเกณฑ์สำรอง และสร้างใบขอเสนอซื้อแบบอัตโนมัติ</div>
+        </div>
+      </div>
+      <p class="lead">ระบบแจ้งเตือนและวิเคราะห์จุดสั่งซื้อ (Reorder Point Monitor) แสดงอะไหล่ที่คงคลังถึง/ต่ำกว่าจุดสั่งซื้อ พร้อมประมาณการมูลค่าและปุ่มส่งเข้าข้อความ LINE</p>
+
+      <figure class="fig">
+        <img src="assets/manual/17.jpeg" alt="ใบขอจัดซื้ออะไหล่">
+        <figcaption><b>รูป 7.1</b> — ระบบแจ้งเตือนจุดสั่งซื้อ: รหัส/ชื่ออะไหล่, ยอดปัจจุบัน, จุดสั่งซื้อ, จำนวนที่ต้องสั่ง, ผู้ขาย, ประมาณการมูลค่า และปุ่ม “เพิ่มลงในบันทึกข้อความ”</figcaption>
+      </figure>
+
+      <ol class="steps">
+        <li>ตรวจรายการอะไหล่ที่ <b>คงคลังถึง/ต่ำกว่าจุดสั่งซื้อ</b> (ไฮไลต์สถานะ)</li>
+        <li>ดู <b>จำนวนที่ต้องสั่งซื้อ</b> และ <b>ประมาณการมูลค่า</b> ที่ระบบคำนวณให้</li>
+        <li>กด <b>“เพิ่มลงในบันทึกข้อความ”</b> เพื่อรวมเข้าบันทึกข้อความขอจัดซื้อ</li>
+        <li>นำรายการไปออก <b>บันทึกข้อความ/ใบขอซื้อ</b> เพื่อพิมพ์เสนอผู้บริหาร</li>
+      </ol>
+    </section>
+
+    <!-- ───── CH 8: BUDGET ───── -->
+    <section class="chapter" id="ch8">
+      <div class="ch-head">
+        <div class="ch-num">8</div>
+        <div>
+          <h2>แผนงบประมาณประจำปี</h2>
+          <div class="sub">ติดตามวงเงิน ใช้ไปแล้ว คงเหลือ และจัดการรายการงบประมาณแต่ละโครงการ</div>
+        </div>
+      </div>
+      <p class="lead">แดชบอร์ดงบประมาณรายปี เลือกดูตามปีงบประมาณได้ แสดงวงเงินรวม ยอดใช้ไป คงเหลือ ความคืบหน้ารายโครงการ และกราฟเปรียบเทียบงบ vs ใช้ไป</p>
+
+      <figure class="fig">
+        <img src="assets/manual/18.jpeg" alt="แผนงบประมาณประจำปี">
+        <figcaption><b>รูป 8.1</b> — แดชบอร์ดงบประมาณ: ตัวเลือกปีงบ, การ์ดสรุป (วงเงินรวม/ใช้ไป/คงเหลือ/%), การ์ดความคืบหน้ารายโครงการ และกราฟเปรียบเทียบงบประมาณ vs ใช้ไปแล้ว</figcaption>
+      </figure>
+
+      <ol class="steps">
+        <li>เลือก <b>ปีงบประมาณ</b> จาก dropdown มุมขวาบน (หรือ “ทุกปีงบประมาณ” เพื่อดูรวม)</li>
+        <li>ดู <b>การ์ดสรุป</b>: วงเงินงบประมาณทั้งหมด, ใช้ไปแล้ว, คงเหลือ และสัดส่วน %</li>
+        <li>ติดตาม <b>ความคืบหน้ารายโครงการ</b> ผ่าน progress bar รวมและแยกรายหมวด</li>
+        <li>กด <b>“เพิ่มรายการงบ”</b> (เฉพาะ Admin) เพื่อเพิ่ม/แก้ไขวงเงินแต่ละโครงการ</li>
+      </ol>
+
+      <div class="callout tip">
+        <span class="ic">🤖</span>
+        <div>หมวดหลัก 4 หมวดที่มีป้าย <b>AUTO</b> ระบบจะคำนวณ “ใช้ไปแล้ว” อัตโนมัติจากการเบิกจ่ายจริง ส่วนรายการอื่นกรอกยอดใช้เองได้ในหน้าจัดการ</div>
+      </div>
+      <div class="callout warn">
+        <span class="ic">👁️</span>
+        <div><b>สิทธิ์:</b> Admin จัดการ (เพิ่ม/แก้ไข/ลบ) ได้เต็ม ส่วน Stock Manager ดูได้อย่างเดียว (มีป้าย “ดูได้อย่างเดียว”)</div>
+      </div>
+    </section>
+
+    <!-- ───── CH 9: USER MANAGEMENT ───── -->
+    <section class="chapter" id="ch9">
+      <div class="ch-head">
+        <div class="ch-num">9</div>
+        <div>
+          <h2>ระบบจัดการสิทธิ์ผู้ใช้</h2>
+          <div class="sub">จัดการผู้ใช้ระบบและกำหนดรหัสผ่านแยกสิทธิ์ในการใช้งาน</div>
+        </div>
+      </div>
+      <p class="lead">สร้างและบริหารบัญชีผู้ใช้ พร้อมกำหนดระดับสิทธิ์ 3 ระดับ และดูจำนวนครั้งการเข้าใช้ระบบของแต่ละบัญชี</p>
+
+      <figure class="fig">
+        <img src="assets/manual/19.jpeg" alt="ระบบจัดการสิทธิ์ผู้ใช้">
+        <figcaption><b>รูป 9.1</b> — สร้างบัญชีผู้ใช้ใหม่ (ซ้าย) และตารางผู้ใช้งานพร้อมจำนวนการเข้าใช้ระบบ ระดับสิทธิ์ รหัสผ่าน สถานะ และปุ่มจัดการ (ขวา)</figcaption>
+      </figure>
+
+      <table class="role-table">
+        <thead><tr><th>ระดับสิทธิ์</th><th>สิ่งที่ทำได้</th><th>โควต้า</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge b-admin">Admin</span></td><td>จัดการได้ทุกโมดูล รวมงบประมาณ ผู้ใช้ และการตั้งค่าคลาวด์/LINE</td><td>สูงสุด 3</td></tr>
+          <tr><td><span class="badge b-mgr">Stock Manager</span></td><td>จัดการคลัง เบิกจ่าย PM ได้เต็ม — ดูงบประมาณได้อย่างเดียว</td><td>สูงสุด 3</td></tr>
+          <tr><td><span class="badge b-user">General User</span></td><td>ดูข้อมูลภาพรวมและประวัติ (จำกัดการแก้ไข)</td><td>สูงสุด 10</td></tr>
+        </tbody>
+      </table>
+
+      <ol class="steps">
+        <li>กรอก <b>ชื่อ-นามสกุลจริง</b> และเลือก <b>ระดับสิทธิ์การใช้งาน</b></li>
+        <li>กำหนด <b>รหัสผ่าน</b> เอง หรือกด <b>“สุ่มรหัส”</b></li>
+        <li>กด <b>“บันทึกข้อมูลผู้ใช้”</b> — บัญชีใหม่จะปรากฏในตารางด้านขวา</li>
+        <li>ใช้ปุ่ม <b>แก้ไข / ลบ</b> และสลับ <b>สถานะเปิด-ปิดใช้งาน</b> รายบัญชีได้</li>
+      </ol>
+    </section>
+
+    <!-- ───── CH 10: SETTINGS ───── -->
+    <section class="chapter" id="ch10">
+      <div class="ch-head">
+        <div class="ch-num">10</div>
+        <div>
+          <h2>คลาวด์ &amp; LINE Settings</h2>
+          <div class="sub">ตั้งค่าการเชื่อมต่อฐานข้อมูล Google Sheets และระบบ LINE OA Notifications</div>
+        </div>
+      </div>
+      <p class="lead">เชื่อมต่อระบบกับ Google Sheets เพื่อสำรอง/ซิงก์ข้อมูลบนคลาวด์ และตั้งค่า LINE OA เพื่อรับการแจ้งเตือนอัตโนมัติ (เฉพาะสิทธิ์ Admin)</p>
+
+      <figure class="fig">
+        <img src="assets/manual/20.jpeg" alt="คลาวด์ และ LINE Settings">
+        <figcaption><b>รูป 10.1</b> — หน้าตั้งค่า: รหัสผ่านความปลอดภัย, Google Apps Script Web App URL, LINE Channel Access Token, LINE Group/User ID, ปุ่มบันทึก/ทดสอบส่ง และขั้นตอนติดตั้งฐานข้อมูลคลาวด์พร้อมโค้ด Apps Script</figcaption>
+      </figure>
+
+      <ol class="steps">
+        <li>วาง <b>Google Apps Script Web App URL</b> (ฐานข้อมูลคลาวด์ซิงก์)</li>
+        <li>เปิดสวิตช์ <b>“ส่งแจ้งเตือน LINE OA เมื่อแตะนีออน”</b> และวาง <b>LINE Channel Access Token</b> + <b>LINE Group/User ID</b></li>
+        <li>กด <b>“บันทึกการตั้งค่า”</b> แล้วกด <b>“ทดสอบส่งข้อความ LINE”</b> เพื่อตรวจสอบการเชื่อมต่อ</li>
+        <li>ทำตาม <b>ขั้นตอนติดตั้ง</b> ด้านขวา: สร้าง Google Sheet → วางโค้ด Apps Script (ปุ่ม Copy Code) → Deploy เป็น Web App (สิทธิ์ “ทุกคน/Anyone”)</li>
+      </ol>
+
+      <div class="callout danger">
+        <span class="ic">🔒</span>
+        <div><b>ความปลอดภัยสำคัญ:</b> LINE Channel Access Token เก็บไว้ในเครื่องของผู้ใช้เท่านั้น ไม่ถูกอัปโหลดหรือบันทึกลงคลังโค้ดสาธารณะ (GitHub) เด็ดขาด</div>
+      </div>
+      <div class="callout tip">
+        <span class="ic">☁️</span>
+        <div>เมื่อเชื่อมต่อสำเร็จ ข้อมูลคลัง อะไหล่ ผู้ใช้ แผน PM และ <b>แผนงบประมาณ (BudgetPlan)</b> จะถูกซิงก์ขึ้น Google Sheets อัตโนมัติทุกครั้งที่บันทึก</div>
+      </div>
+    </section>
+
+    <footer class="doc-foot">
+      คู่มือการใช้งานระบบควบคุมคลังอะไหล่แพทย์ · ศูนย์เครื่องมือแพทย์ โรงพยาบาลนครพิงค์<br>
+      จัดทำจากภาพหน้าจอจริงของระบบ (POC 15 มิ.ย. 2569) · ปรับปรุง 16 มิ.ย. 2569
+    </footer>
+
+  </main>
+</div>
+</body>
+</html>
