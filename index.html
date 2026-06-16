@@ -1260,6 +1260,141 @@
         print-color-adjust: exact;
       }
     }
+
+    /* ===== Glass-tube stock gauges (สต็อกแบบแท่งแก้วนีออน) ===== */
+    .gauge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+      gap: 20px 8px;
+      padding: 14px 16px 8px;
+      align-items: end;
+      max-height: 430px;
+      overflow-y: auto;
+    }
+    .gauge-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    .gauge-pct {
+      font-size: 0.72rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.01em;
+      line-height: 1;
+    }
+    .gauge-tube {
+      position: relative;
+      width: 34px;
+      height: 132px;
+      border-radius: 17px / 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.015));
+      border: 1px solid rgba(255,255,255,0.16);
+      box-shadow:
+        inset -6px 0 11px rgba(0,0,0,0.40),
+        inset 6px 0 9px rgba(255,255,255,0.06),
+        inset 0 2px 4px rgba(255,255,255,0.10),
+        0 4px 10px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+    /* glass vertical sheen */
+    .gauge-tube::after {
+      content: "";
+      position: absolute;
+      top: 7px; left: 6px;
+      width: 6px; height: calc(100% - 14px);
+      border-radius: 6px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.04));
+      opacity: 0.55;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .gauge-fill {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 0;
+      border-radius: 0 0 16px 16px / 0 0 13px 13px;
+      background: linear-gradient(180deg, var(--c-top), var(--c));
+      box-shadow: 0 0 14px 1px var(--c-glow), inset 0 0 6px rgba(255,255,255,0.25);
+      transition: height 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 1;
+    }
+    /* liquid surface ellipse (3D top) */
+    .gauge-fill::before {
+      content: "";
+      position: absolute;
+      top: -4px; left: 0; right: 0;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--c-top);
+      filter: brightness(1.18);
+      box-shadow: 0 0 8px var(--c-glow);
+    }
+    .gauge-zero { /* tiny puck when empty/near-zero */
+      position: absolute; left: 4px; right: 4px; bottom: 3px; height: 7px;
+      border-radius: 50%;
+      background: var(--c); box-shadow: 0 0 10px var(--c-glow); opacity: 0.9; z-index: 1;
+    }
+    .gauge-code {
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      letter-spacing: -0.01em;
+      max-width: 56px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: center;
+    }
+    .gauge-qty { font-size: 0.62rem; color: var(--text-secondary); opacity: 0.75; line-height: 1; }
+    /* neon color zones */
+    .z-green  { --c: #14d98a; --c-top: #5bffb2; --c-glow: rgba(40,255,160,0.55); }
+    .z-yellow { --c: #f5b30a; --c-top: #ffe35c; --c-glow: rgba(255,210,60,0.50); }
+    .z-red    { --c: #ff2d55; --c-top: #ff7090; --c-glow: rgba(255,55,95,0.62); }
+    .gauge-pct.z-green  { color: #5bffb2; }
+    .gauge-pct.z-yellow { color: #ffd84d; }
+    .gauge-pct.z-red    { color: #ff7090; }
+    .gauge-dot {
+      display: inline-block; width: 11px; height: 11px; border-radius: 50%;
+      margin-right: 5px; vertical-align: -1px;
+      background: var(--c); box-shadow: 0 0 8px var(--c-glow);
+    }
+    .gauge-legend-item { display: inline-flex; align-items: center; }
+    /* critical items: gentle neon pulse */
+    @keyframes gaugeNeonPulse {
+      0%, 100% { box-shadow: 0 0 14px 1px var(--c-glow), inset 0 0 6px rgba(255,255,255,0.25); }
+      50%      { box-shadow: 0 0 22px 4px var(--c-glow), inset 0 0 8px rgba(255,255,255,0.35); }
+    }
+    .gauge-cell.is-critical .gauge-fill,
+    .gauge-cell.is-critical .gauge-zero { animation: gaugeNeonPulse 1.7s ease-in-out infinite; }
+    /* custom hover tooltip */
+    #gauge-tooltip {
+      position: fixed;
+      z-index: 1000;
+      pointer-events: none;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 0.76rem;
+      color: var(--text-primary);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      max-width: 280px;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.14s ease, transform 0.14s ease;
+    }
+    #gauge-tooltip.show { opacity: 1; transform: translateY(0); }
+    #gauge-tooltip .gt-title { font-weight: 700; margin-bottom: 5px; line-height: 1.25; }
+    #gauge-tooltip .gt-row { display: flex; justify-content: space-between; gap: 16px; line-height: 1.6; }
+    #gauge-tooltip .gt-row span:last-child { font-weight: 700; font-variant-numeric: tabular-nums; }
+    @media (prefers-reduced-motion: reduce) {
+      .gauge-fill { transition: none; }
+      .gauge-cell.is-critical .gauge-fill,
+      .gauge-cell.is-critical .gauge-zero { animation: none; }
+      #gauge-tooltip { transition: none; }
+    }
   </style>
 </head>
 <body data-theme="dark">
@@ -1439,9 +1574,9 @@
           <!-- Urgent Items Stacked Bar Chart -->
           <div class="card" id="urgent-chart-card" style="flex: 2; min-width: 0;">
             <div class="card-header" style="gap:10px;">
-              <span class="card-title" style="color: var(--danger); flex:1; min-width:0;">
-                <i data-lucide="bar-chart-2" style="color: var(--danger);"></i>
-                สต็อกวิกฤต — เปรียบเทียบสต็อกสูงสุด / ขั้นต่ำ / จุดสั่งซื้อ / คงคลัง
+              <span class="card-title" style="flex:1; min-width:0;">
+                <i data-lucide="flask-conical" style="color: var(--primary);"></i>
+                ระดับคงคลังอะไหล่ทุกรายการ <span id="gauge-count-label" style="color:var(--text-secondary); font-weight:600; font-size:0.85rem;"></span>
               </span>
               <button id="abc-toggle-btn" onclick="toggleAbcCard()" title="ย่อ/ขยายกราฟ ABC"
                 style="display:inline-flex; align-items:center; gap:5px; flex-shrink:0; background:var(--bg-secondary); border:1px solid var(--border-color); color:var(--text-secondary); font-size:0.72rem; font-weight:600; padding:4px 10px; border-radius:6px; cursor:pointer; white-space:nowrap;">
@@ -1449,18 +1584,14 @@
                 <span id="abc-toggle-label">ซ่อนกราฟ ABC</span>
               </button>
             </div>
-            <div class="chart-container" id="urgent-chart-scroll" style="height: 380px; min-height: 380px; max-height: 380px; overflow-x: auto; overflow-y: hidden; justify-content: flex-start;">
-              <div id="urgent-chart-inner" style="height: 100%; min-width: 100%; flex: 0 0 auto;">
-                <canvas id="urgentStockChart"></canvas>
-              </div>
+            <div style="display:flex; gap:18px; flex-wrap:wrap; padding: 4px 18px 10px; font-size:0.74rem; color:var(--text-secondary); align-items:center;">
+              <span class="gauge-legend-item"><span class="gauge-dot z-green"></span>ปกติ <span style="opacity:.6;">(สูงกว่าจุดสั่งซื้อ)</span></span>
+              <span class="gauge-legend-item"><span class="gauge-dot z-yellow"></span>ควรสั่งซื้อ <span style="opacity:.6;">(ถึงจุดสั่งซื้อ)</span></span>
+              <span class="gauge-legend-item"><span class="gauge-dot z-red"></span>วิกฤต <span style="opacity:.6;">(ต่ำกว่า/เท่าขั้นต่ำ)</span></span>
+              <span style="margin-left:auto; opacity:.65;">ระดับน้ำ = คงคลัง ÷ สต็อกสูงสุดของรายการ</span>
             </div>
-            <div style="display:flex; gap:16px; flex-wrap:wrap; padding: 8px 16px 4px; font-size:0.75rem; color:var(--text-secondary);">
-              <span><span style="display:inline-block;width:12px;height:12px;background:#60a5fa;border-radius:2px;margin-right:4px;"></span>สต็อกสูงสุด</span>
-              <span><span style="display:inline-block;width:12px;height:12px;background:#34d399;border-radius:2px;margin-right:4px;"></span>สต็อกขั้นต่ำ</span>
-              <span><span style="display:inline-block;width:12px;height:12px;background:#fbbf24;border-radius:2px;margin-right:4px;"></span>จุดสั่งซื้อ</span>
-              <span><span style="display:inline-block;width:12px;height:12px;background:#f87171;border-radius:2px;margin-right:4px;"></span>คงคลังจริง</span>
-            </div>
-            <div id="urgent-stock-parts-index" style="padding: 0 16px 12px;"></div>
+            <div id="urgent-gauge-grid" class="gauge-grid"></div>
+            <div id="urgent-stock-parts-index" style="padding: 4px 16px 12px;"></div>
           </div>
           <!-- ABC Distribution -->
           <div class="card" id="abc-card" style="flex: 1; min-width: 0;">
@@ -4792,113 +4923,71 @@ ${printArea.outerHTML}
 
     }
 
-    function renderUrgentStockChart() {
-      const canvas = document.getElementById("urgentStockChart");
-      if (!canvas) return;
+    // เกณฑ์โซนสีตามระดับสต็อก (เทียบ min/reorder ของแต่ละรายการ)
+    function gaugeZone(p) {
+      const inS = parseFloat(p.inStock) || 0;
+      const mn = parseFloat(p.minStock) || 0;
+      const ro = parseFloat(p.reorderPoint) || 0;
+      if (inS <= mn) return "red";            // วิกฤต/ใกล้หมด
+      if (ro && inS <= ro) return "yellow";   // ควรสั่งซื้อ
+      return "green";                          // ปกติ
+    }
 
+    let _gaugeTipData = [];
+    function renderUrgentStockChart() {
+      const grid = document.getElementById("urgent-gauge-grid");
+      if (!grid) return;
+
+      // แสดงอะไหล่ "ทุกรายการ" เป็นแท่งแก้ว เรียงให้รายการวิกฤตขึ้นก่อน
+      // ระดับน้ำ = คงคลัง ÷ สต็อกสูงสุดของรายการนั้นเอง (เกจถังน้ำมัน) — แต่ละแท่งเต็ม/พร่องตามความจุตัวเอง
+      const zoneRank = { red: 0, yellow: 1, green: 2 };
+      const gaugeParts = parts.map(p => {
+        const zone = gaugeZone(p);
+        const inS = parseFloat(p.inStock) || 0;
+        const maxS = parseFloat(p.maxStock) || 0;
+        const pct = maxS > 0 ? Math.min(100, Math.round((inS / maxS) * 100)) : (inS > 0 ? 100 : 0);
+        return { p, zone, inS, pct };
+      }).sort((a, b) => (zoneRank[a.zone] - zoneRank[b.zone]) || (a.pct - b.pct));
+
+      const critCount = gaugeParts.filter(g => g.zone === "red").length;
+      const countLabel = document.getElementById("gauge-count-label");
+      if (countLabel) countLabel.textContent = `(${parts.length} รายการ · วิกฤต ${critCount})`;
+
+      if (gaugeParts.length === 0) {
+        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-secondary); padding:28px;">ยังไม่มีข้อมูลอะไหล่</div>`;
+      } else {
+        _gaugeTipData = gaugeParts.map(g => g.p);
+        grid.innerHTML = gaugeParts.map((g, i) => {
+          const p = g.p;
+          const code = (p.code && String(p.code).trim()) ? p.code : "--";
+          const zClass = "z-" + g.zone;
+          const critClass = g.zone === "red" ? " is-critical" : "";
+          const maxS = parseFloat(p.maxStock) || g.inS;
+          const inner = g.inS <= 0
+            ? `<span class="gauge-zero"></span>`
+            : `<span class="gauge-fill ${zClass}" data-h="${Math.max(8, g.pct)}" style="height:0;"></span>`;
+          return `<div class="gauge-cell${critClass} ${zClass}" data-idx="${i}">
+              <span class="gauge-pct ${zClass}">${g.pct}%</span>
+              <span class="gauge-tube">${inner}</span>
+              <span class="gauge-code" title="${code}">${code}</span>
+              <span class="gauge-qty">${g.inS}/${maxS}</span>
+            </div>`;
+        }).join('');
+        // เติมน้ำแบบ animate (height 0 -> เป้าหมาย) หลัง paint
+        requestAnimationFrame(() => {
+          grid.querySelectorAll('.gauge-fill[data-h]').forEach(el => {
+            el.style.height = el.getAttribute('data-h') + '%';
+          });
+        });
+      }
+      setupGaugeTooltip();
+
+      // คงรายการเร่งด่วนไว้สำหรับตารางสรุปด้านล่าง
       const urgentParts = parts.filter(p => {
         const ss = getStockState(p);
         const es = getExpiryState(p.expiryDate);
         return ss.status === "Low Stock" || ss.status === "Out of Stock" ||
                es.status === "Expired" || es.status === "Near Expiry";
-      });
-
-      const isDark = document.body.getAttribute("data-theme") === "dark";
-      const labelColor = isDark ? "#d1d5db" : "#334155";
-      const gridColor = isDark ? "#374151" : "#e2e8f0";
-
-      if (urgentStockChartRef) urgentStockChartRef.destroy();
-
-      if (urgentParts.length === 0) {
-        const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = labelColor;
-        ctx.font = "14px Sarabun";
-        ctx.textAlign = "center";
-        ctx.fillText("ไม่มีรายการที่ต้องดำเนินการเร่งด่วน", canvas.width / 2, canvas.height / 2);
-        return;
-      }
-
-      // แกน x แสดงเฉพาะ "รหัส" (ชื่อเต็มดูได้จาก tooltip ตอนเอาเมาส์ชี้)
-      const labels = urgentParts.map(p => (p.code && String(p.code).trim()) ? p.code : '--');
-
-      // ยืดหยุ่นตามจำนวนรายการ: คำนวณความกว้างกราฟใหม่ทุกครั้ง (เพิ่ม/ลดรายการแล้วปรับเอง)
-      // น้อยรายการ -> เต็มความกว้าง, มากรายการ -> ขยายกว้าง + เลื่อนแนวนอน เพื่อให้แท่ง/รหัสใหญ่อ่านง่าย
-      const scrollBox = document.getElementById("urgent-chart-scroll");
-      const innerBox = document.getElementById("urgent-chart-inner");
-      if (innerBox && scrollBox) {
-        const perGroup = 54; // px ต่อ 1 รายการ (4 แท่ง) — ปรับให้แท่งใหญ่ขึ้น
-        const needed = urgentParts.length * perGroup;
-        const avail = scrollBox.clientWidth || 600;
-        innerBox.style.width = Math.max(avail, needed) + "px";
-      }
-      urgentStockChartRef = new Chart(canvas.getContext("2d"), {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: 'สต็อกสูงสุด',
-              data: urgentParts.map(p => p.maxStock || 0),
-              backgroundColor: 'rgba(96,165,250,0.85)',
-              borderRadius: 3
-            },
-            {
-              label: 'สต็อกขั้นต่ำ',
-              data: urgentParts.map(p => p.minStock || 0),
-              backgroundColor: 'rgba(52,211,153,0.85)',
-              borderRadius: 3
-            },
-            {
-              label: 'จุดสั่งซื้อ',
-              data: urgentParts.map(p => p.reorderPoint || 0),
-              backgroundColor: 'rgba(251,191,36,0.85)',
-              borderRadius: 3
-            },
-            {
-              label: 'คงคลังจริง',
-              data: urgentParts.map(p => p.inStock || 0),
-              backgroundColor: 'rgba(248,113,113,0.85)',
-              borderRadius: 3
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: { mode: 'index', intersect: false },
-          scales: {
-            x: {
-              grid: { display: false },
-              ticks: {
-                color: labelColor,
-                font: { family: 'Sarabun', size: 12, weight: '600' }, // รหัสตัวใหญ่ขึ้น
-                maxRotation: 50,   // เฉียงตามทิศลูกศร
-                minRotation: 50,
-                autoSkip: false,   // แสดงรหัสครบทุกแท่ง
-                callback: function(val) { return this.getLabelForValue(val); }
-              }
-            },
-            y: {
-              beginAtZero: true,
-              grid: { color: gridColor },
-              ticks: { color: labelColor, font: { family: 'Sarabun', size: 10 } },
-              title: { display: true, text: 'จำนวน (ชิ้น)', color: labelColor, font: { family: 'Sarabun', size: 10 } }
-            }
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                title: ctx => {
-                  const p = urgentParts[ctx[0].dataIndex];
-                  return `${p.code || '-'} — ${p.name}`;
-                },
-                label: ctx => ` ${ctx.dataset.label}: ${ctx.raw} ชิ้น`
-              }
-            }
-          }
-        }
       });
 
       // Render parts reference table below chart (รหัส/ชื่อ/ตำแหน่ง/คงเหลือ/จุดต่ำสุด/สถานะ — ไม่แสดงผู้จัดจำหน่าย)
@@ -4947,6 +5036,54 @@ ${printArea.outerHTML}
           </div>
         </div>`;
       }
+    }
+
+    // Tooltip ตอนเอาเมาส์ชี้แท่งแก้ว — แสดงรหัส/ชื่อ + คงคลัง/ขั้นต่ำ/จุดสั่งซื้อ/สูงสุด/สถานะ
+    let _gaugeTipBound = false;
+    function setupGaugeTooltip() {
+      let tip = document.getElementById("gauge-tooltip");
+      if (!tip) {
+        tip = document.createElement("div");
+        tip.id = "gauge-tooltip";
+        document.body.appendChild(tip);
+      }
+      const grid = document.getElementById("urgent-gauge-grid");
+      if (!grid || _gaugeTipBound) return;
+      _gaugeTipBound = true;
+
+      const zoneText = { red: "วิกฤต / ใกล้หมด", yellow: "ควรสั่งซื้อ", green: "ปกติ" };
+      const zoneColor = { red: "#ff7090", yellow: "#ffd84d", green: "#5bffb2" };
+
+      const showFor = (cell, x, y) => {
+        const idx = parseInt(cell.getAttribute("data-idx"), 10);
+        const p = _gaugeTipData[idx];
+        if (!p) return;
+        const zone = gaugeZone(p);
+        const code = (p.code && String(p.code).trim()) ? p.code : "--";
+        const row = (label, val) => `<div class="gt-row"><span>${label}</span><span>${val}</span></div>`;
+        tip.innerHTML =
+          `<div class="gt-title">${code} — ${p.name || "-"}</div>` +
+          row("คงคลังจริง", `${parseFloat(p.inStock) || 0} ชิ้น`) +
+          row("จุดสั่งซื้อ", `${parseFloat(p.reorderPoint) || 0} ชิ้น`) +
+          row("สต็อกขั้นต่ำ", `${parseFloat(p.minStock) || 0} ชิ้น`) +
+          row("สต็อกสูงสุด", `${parseFloat(p.maxStock) || 0} ชิ้น`) +
+          (p.location ? row("ตำแหน่งจัดเก็บ", p.location) : "") +
+          `<div class="gt-row" style="margin-top:4px;"><span>สถานะ</span><span style="color:${zoneColor[zone]}">${zoneText[zone]}</span></div>`;
+        tip.classList.add("show");
+        const tw = tip.offsetWidth, th = tip.offsetHeight;
+        let left = x + 14, top = y + 14;
+        if (left + tw > window.innerWidth - 8) left = x - tw - 14;
+        if (top + th > window.innerHeight - 8) top = y - th - 14;
+        tip.style.left = Math.max(8, left) + "px";
+        tip.style.top = Math.max(8, top) + "px";
+      };
+
+      grid.addEventListener("mousemove", (e) => {
+        const cell = e.target.closest(".gauge-cell");
+        if (cell) showFor(cell, e.clientX, e.clientY);
+        else tip.classList.remove("show");
+      });
+      grid.addEventListener("mouseleave", () => tip.classList.remove("show"));
     }
 
     // Realtime: ตรวจการเปลี่ยนแปลงข้อมูลอะไหล่ แล้ว re-render กราฟ/ตารางสต็อกวิกฤตเฉพาะเมื่อข้อมูลเปลี่ยนจริง
