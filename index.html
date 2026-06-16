@@ -501,7 +501,7 @@
     /* Charts Grid */
     .charts-grid {
       display: grid;
-      grid-template-columns: 2fr 1fr;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
       gap: 24px;
     }
 
@@ -1265,20 +1265,24 @@
     .gauge-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
-      gap: 20px 8px;
+      gap: var(--gauge-gap-y, 18px) var(--gauge-gap-x, 8px);
       padding: 14px 16px 8px;
       align-items: end;
-      max-height: 430px;
-      overflow-y: auto;
+      justify-items: center;
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+      overflow: hidden;
     }
     .gauge-cell {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 5px;
+      min-width: 0;
     }
     .gauge-pct {
-      font-size: 0.72rem;
+      font-size: var(--gauge-pct-fs, 0.72rem);
       font-weight: 800;
       font-variant-numeric: tabular-nums;
       letter-spacing: 0.01em;
@@ -1286,9 +1290,9 @@
     }
     .gauge-tube {
       position: relative;
-      width: 34px;
-      height: 132px;
-      border-radius: 17px / 14px;
+      width: var(--tube-w, 34px);
+      height: var(--tube-h, 132px);
+      border-radius: var(--tube-radius, 17px);
       background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.015));
       border: 1px solid rgba(255,255,255,0.16);
       box-shadow:
@@ -1337,17 +1341,28 @@
       background: var(--c); box-shadow: 0 0 10px var(--c-glow); opacity: 0.9; z-index: 1;
     }
     .gauge-code {
-      font-size: 0.6rem;
+      font-size: var(--gauge-code-fs, 0.6rem);
       font-weight: 700;
       color: var(--text-secondary);
       letter-spacing: -0.01em;
-      max-width: 56px;
+      max-width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       text-align: center;
     }
-    .gauge-qty { font-size: 0.62rem; color: var(--text-secondary); opacity: 0.75; line-height: 1; }
+    .gauge-qty { font-size: var(--gauge-qty-fs, 0.62rem); color: var(--text-secondary); opacity: 0.75; line-height: 1; }
+    /* โหมดแคบ (รายการเยอะ แถวเดียว): หมุนรหัสแนวตั้ง + ซ่อนจำนวน เพื่อให้ครบทุกแท่งไม่ต้องเลื่อน */
+    .gauge-grid.dense .gauge-code {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      height: 74px;            /* ความสูงคงที่ -> ฐานแท่งทุกอันอยู่ระดับเดียวกัน */
+      max-width: none;
+      overflow: hidden;
+      letter-spacing: 0;
+    }
+    .gauge-grid.dense .gauge-qty { display: none; }
+    .gauge-grid.dense .gauge-cell { gap: 3px; }
     /* neon color zones */
     .z-green  { --c: #14d98a; --c-top: #5bffb2; --c-glow: rgba(40,255,160,0.55); }
     .z-yellow { --c: #f5b30a; --c-top: #ffe35c; --c-glow: rgba(255,210,60,0.50); }
@@ -4923,6 +4938,32 @@ ${printArea.outerHTML}
 
     }
 
+    // จัดแท่งแก้วเป็น "แถวเดียวแนวนอน" ครบทุกรายการ โดยย่อความกว้างแท่งให้พอดี ไม่ต้องเลื่อน scroll
+    // มากรายการ -> แท่งผอมลง (รหัสหมุนแนวตั้ง), น้อยรายการ -> แท่งกว้างขึ้น (รหัสแนวนอน)
+    function fitGaugeGrid(grid, n) {
+      if (!grid || n <= 0) return;
+      const W = grid.clientWidth - 32; // หัก padding ซ้าย-ขวา
+      if (W <= 0) return;
+      const gapX = 6;
+      const TUBE_H = 150;
+      // ความกว้างแท่ง = แบ่งพื้นที่เท่า ๆ กันต่อรายการ (จำกัด 9–46px)
+      let tubeW = (W - (n - 1) * gapX) / n;
+      tubeW = Math.max(9, Math.min(46, tubeW));
+      const dense = tubeW < 30; // แคบ -> หมุนรหัสแนวตั้ง + ซ่อนจำนวน
+      const fs = Math.max(0.5, Math.min(0.72, tubeW / 52));
+
+      grid.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
+      grid.classList.toggle("dense", dense);
+      grid.style.setProperty("--tube-w", tubeW.toFixed(1) + "px");
+      grid.style.setProperty("--tube-h", TUBE_H + "px");
+      grid.style.setProperty("--tube-radius", Math.min(tubeW / 2, 16).toFixed(1) + "px");
+      grid.style.setProperty("--gauge-gap-x", gapX + "px");
+      grid.style.setProperty("--gauge-gap-y", "0px");
+      grid.style.setProperty("--gauge-pct-fs", fs.toFixed(3) + "rem");
+      grid.style.setProperty("--gauge-code-fs", Math.max(0.5, fs - 0.04).toFixed(3) + "rem");
+      grid.style.setProperty("--gauge-qty-fs", Math.max(0.5, fs - 0.04).toFixed(3) + "rem");
+    }
+
     // เกณฑ์โซนสีตามระดับสต็อก (เทียบ min/reorder ของแต่ละรายการ)
     function gaugeZone(p) {
       const inS = parseFloat(p.inStock) || 0;
@@ -4938,16 +4979,15 @@ ${printArea.outerHTML}
       const grid = document.getElementById("urgent-gauge-grid");
       if (!grid) return;
 
-      // แสดงอะไหล่ "ทุกรายการ" เป็นแท่งแก้ว เรียงให้รายการวิกฤตขึ้นก่อน
+      // แสดงอะไหล่ "ทุกรายการ" เป็นแท่งแก้วแถวเดียว เรียงตามลำดับในซีต Parts (ไม่ sort)
       // ระดับน้ำ = คงคลัง ÷ สต็อกสูงสุดของรายการนั้นเอง (เกจถังน้ำมัน) — แต่ละแท่งเต็ม/พร่องตามความจุตัวเอง
-      const zoneRank = { red: 0, yellow: 1, green: 2 };
       const gaugeParts = parts.map(p => {
         const zone = gaugeZone(p);
         const inS = parseFloat(p.inStock) || 0;
         const maxS = parseFloat(p.maxStock) || 0;
         const pct = maxS > 0 ? Math.min(100, Math.round((inS / maxS) * 100)) : (inS > 0 ? 100 : 0);
         return { p, zone, inS, pct };
-      }).sort((a, b) => (zoneRank[a.zone] - zoneRank[b.zone]) || (a.pct - b.pct));
+      });
 
       const critCount = gaugeParts.filter(g => g.zone === "red").length;
       const countLabel = document.getElementById("gauge-count-label");
@@ -4973,8 +5013,9 @@ ${printArea.outerHTML}
               <span class="gauge-qty">${g.inS}/${maxS}</span>
             </div>`;
         }).join('');
-        // เติมน้ำแบบ animate (height 0 -> เป้าหมาย) หลัง paint
+        // ปรับขนาดแท่งให้พอดีพื้นที่ (ไม่มี scroll) แล้วค่อยเติมน้ำแบบ animate
         requestAnimationFrame(() => {
+          fitGaugeGrid(grid, gaugeParts.length);
           grid.querySelectorAll('.gauge-fill[data-h]').forEach(el => {
             el.style.height = el.getAttribute('data-h') + '%';
           });
@@ -5084,6 +5125,16 @@ ${printArea.outerHTML}
         else tip.classList.remove("show");
       });
       grid.addEventListener("mouseleave", () => tip.classList.remove("show"));
+
+      // ปรับขนาดแท่งใหม่เมื่อหน้าจอเปลี่ยนขนาด (ไม่ต้อง re-render ทั้งหมด)
+      let _rzT;
+      window.addEventListener("resize", () => {
+        clearTimeout(_rzT);
+        _rzT = setTimeout(() => {
+          const g = document.getElementById("urgent-gauge-grid");
+          if (g && g.children.length) fitGaugeGrid(g, g.querySelectorAll(".gauge-cell").length);
+        }, 150);
+      });
     }
 
     // Realtime: ตรวจการเปลี่ยนแปลงข้อมูลอะไหล่ แล้ว re-render กราฟ/ตารางสต็อกวิกฤตเฉพาะเมื่อข้อมูลเปลี่ยนจริง
@@ -5110,7 +5161,7 @@ ${printArea.outerHTML}
       const iconEl = document.getElementById("abc-toggle-icon");
       if (abcCard) abcCard.style.display = abcCardCollapsed ? "none" : "";
       // สลับ grid: ย่อ = 1 คอลัมน์ (กราฟแท่งเต็มความกว้าง), ขยาย = 2fr 1fr ตามเดิม
-      if (grid) grid.style.gridTemplateColumns = abcCardCollapsed ? "1fr" : "";
+      if (grid) grid.style.gridTemplateColumns = abcCardCollapsed ? "minmax(0, 1fr)" : "";
       if (label) label.textContent = abcCardCollapsed ? "แสดงกราฟ ABC" : "ซ่อนกราฟ ABC";
       if (iconEl) iconEl.setAttribute("data-lucide", abcCardCollapsed ? "chevrons-left" : "chevrons-right");
       if (window.lucide) lucide.createIcons();
