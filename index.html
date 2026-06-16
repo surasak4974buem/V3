@@ -1437,12 +1437,17 @@
         <!-- Charts Section -->
         <div class="charts-grid">
           <!-- Urgent Items Stacked Bar Chart -->
-          <div class="card" style="flex: 2; min-width: 0;">
-            <div class="card-header">
-              <span class="card-title" style="color: var(--danger);">
+          <div class="card" id="urgent-chart-card" style="flex: 2; min-width: 0;">
+            <div class="card-header" style="gap:10px;">
+              <span class="card-title" style="color: var(--danger); flex:1; min-width:0;">
                 <i data-lucide="bar-chart-2" style="color: var(--danger);"></i>
                 สต็อกวิกฤต — เปรียบเทียบสต็อกสูงสุด / ขั้นต่ำ / จุดสั่งซื้อ / คงคลัง
               </span>
+              <button id="abc-toggle-btn" onclick="toggleAbcCard()" title="ย่อ/ขยายกราฟ ABC"
+                style="display:inline-flex; align-items:center; gap:5px; flex-shrink:0; background:var(--bg-secondary); border:1px solid var(--border-color); color:var(--text-secondary); font-size:0.72rem; font-weight:600; padding:4px 10px; border-radius:6px; cursor:pointer; white-space:nowrap;">
+                <i data-lucide="chevrons-right" id="abc-toggle-icon" style="width:14px; height:14px;"></i>
+                <span id="abc-toggle-label">ซ่อนกราฟ ABC</span>
+              </button>
             </div>
             <div class="chart-container" style="height: 280px;">
               <canvas id="urgentStockChart"></canvas>
@@ -1456,7 +1461,7 @@
             <div id="urgent-stock-parts-index" style="padding: 0 16px 12px;"></div>
           </div>
           <!-- ABC Distribution -->
-          <div class="card" style="flex: 1; min-width: 0;">
+          <div class="card" id="abc-card" style="flex: 1; min-width: 0;">
             <div class="card-header">
               <span class="card-title">
                 <i data-lucide="pie-chart" style="color: var(--primary);"></i>
@@ -3632,6 +3637,7 @@ function sendLineNotify(flexMessage, token, groupId) {
     let abcChartRef = null;
     let urgentStockChartRef = null;
     let budgetCompareChartRef = null;
+    let abcCardCollapsed = false; // สถานะย่อ/ขยายการ์ดกราฟ ABC
     let selectedBudgetYear = null; // ปีงบที่เลือกในหน้าแผนงบประมาณ (พ.ศ. string) | null = ทั้งหมด
 
     // Helper: Map parts to Project & Category
@@ -4899,10 +4905,31 @@ ${printArea.outerHTML}
           </div>`;
         }).join('');
         indexDiv.innerHTML = `<div style="border-top:1px solid var(--border-color);padding-top:8px;margin-top:4px;">
-          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:600;letter-spacing:0.04em;margin-bottom:5px;">รายการอะไหล่ในกราฟ (${urgentParts.length} รายการ)</div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:600;letter-spacing:0.04em;margin-bottom:5px;">อะไหล่ที่ต้องดำเนินการเร่งด่วน (${urgentParts.length} รายการ)</div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0 16px;">${rows}</div>
         </div>`;
       }
+    }
+
+    // ย่อ/ขยายการ์ดกราฟ ABC — ย่อแล้วกราฟแท่งสต็อกวิกฤตขยายเต็มความกว้าง
+    function toggleAbcCard() {
+      abcCardCollapsed = !abcCardCollapsed;
+      const abcCard = document.getElementById("abc-card");
+      const barCard = document.getElementById("urgent-chart-card");
+      const grid = barCard ? barCard.parentElement : null; // .charts-grid ของแดชบอร์ด
+      const label = document.getElementById("abc-toggle-label");
+      const iconEl = document.getElementById("abc-toggle-icon");
+      if (abcCard) abcCard.style.display = abcCardCollapsed ? "none" : "";
+      // สลับ grid: ย่อ = 1 คอลัมน์ (กราฟแท่งเต็มความกว้าง), ขยาย = 2fr 1fr ตามเดิม
+      if (grid) grid.style.gridTemplateColumns = abcCardCollapsed ? "1fr" : "";
+      if (label) label.textContent = abcCardCollapsed ? "แสดงกราฟ ABC" : "ซ่อนกราฟ ABC";
+      if (iconEl) iconEl.setAttribute("data-lucide", abcCardCollapsed ? "chevrons-left" : "chevrons-right");
+      if (window.lucide) lucide.createIcons();
+      // คำนวณขนาด canvas ใหม่หลัง layout เปลี่ยน เพื่อให้กราฟไม่ผิดสัดส่วน
+      setTimeout(() => {
+        if (urgentStockChartRef) urgentStockChartRef.resize();
+        if (abcChartRef && !abcCardCollapsed) abcChartRef.resize();
+      }, 80);
     }
 
     // ---------- BUDGET TAB FUNCTIONS ----------
