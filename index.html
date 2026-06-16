@@ -1352,14 +1352,24 @@
       text-align: center;
     }
     .gauge-qty { font-size: var(--gauge-qty-fs, 0.62rem); color: var(--text-secondary); opacity: 0.75; line-height: 1; }
-    /* โหมดแคบ (รายการเยอะ แถวเดียว): หมุนรหัสแนวตั้ง + ซ่อนจำนวน เพื่อให้ครบทุกแท่งไม่ต้องเลื่อน */
+    /* โหมดแคบ (รายการเยอะ แถวเดียว): หมุนรหัสแนวเฉียงอ่านง่าย + ซ่อนจำนวน */
+    .gauge-code-txt { display: inline-block; }
     .gauge-grid.dense .gauge-code {
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      height: 74px;            /* ความสูงคงที่ -> ฐานแท่งทุกอันอยู่ระดับเดียวกัน */
+      position: relative;
+      height: 78px;            /* ความสูงคงที่ -> ฐานแท่งทุกอันอยู่ระดับเดียวกัน */
+      width: 100%;
       max-width: none;
-      overflow: hidden;
+      overflow: visible;
+    }
+    .gauge-grid.dense .gauge-code-txt {
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      transform-origin: left top;
+      transform: rotate(52deg);   /* เฉียง ~52 องศา อ่านง่าย ขนานกันทุกแท่ง */
+      white-space: nowrap;
       letter-spacing: 0;
+      line-height: 1;
     }
     .gauge-grid.dense .gauge-qty { display: none; }
     .gauge-grid.dense .gauge-cell { gap: 3px; }
@@ -5009,17 +5019,17 @@ ${printArea.outerHTML}
           return `<div class="gauge-cell${critClass} ${zClass}" data-idx="${i}">
               <span class="gauge-pct ${zClass}">${g.pct}%</span>
               <span class="gauge-tube">${inner}</span>
-              <span class="gauge-code" title="${code}">${code}</span>
+              <span class="gauge-code" title="${code}"><span class="gauge-code-txt">${code}</span></span>
               <span class="gauge-qty">${g.inS}/${maxS}</span>
             </div>`;
         }).join('');
-        // ปรับขนาดแท่งให้พอดีพื้นที่ (ไม่มี scroll) แล้วค่อยเติมน้ำแบบ animate
-        requestAnimationFrame(() => {
-          fitGaugeGrid(grid, gaugeParts.length);
+        // ปรับขนาดแท่งให้พอดีพื้นที่ทันที (ไม่พึ่ง rAF) แล้วค่อยเติมน้ำแบบ animate
+        fitGaugeGrid(grid, gaugeParts.length);
+        setTimeout(() => {
           grid.querySelectorAll('.gauge-fill[data-h]').forEach(el => {
             el.style.height = el.getAttribute('data-h') + '%';
           });
-        });
+        }, 30);
       }
       setupGaugeTooltip();
 
