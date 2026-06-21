@@ -3834,7 +3834,9 @@ function sendLineNotify(flexMessage, token, groupId) {
 
     // Initialize App
     document.addEventListener("DOMContentLoaded", () => {
-      initStorage();
+      try { initStorage(); } catch (e) { console.error("initStorage error", e); }
+      // รับประกันว่าจะดึงข้อมูลล่าสุดจาก Cloud เสมอ แม้ init จะมีปัญหา
+      ensureCloudPull();
       checkAuth();
       initializeUI();
       updateDashboard();
@@ -3948,8 +3950,16 @@ function sendLineNotify(flexMessage, token, groupId) {
         localStorage.setItem("nkp_users", JSON.stringify(userAccounts));
       }
 
-      recalculateABC();
-      pullFromCloud();
+      try { recalculateABC(); } catch (e) { console.error("recalculateABC error", e); }
+      ensureCloudPull();
+    }
+
+    // ดึงข้อมูลล่าสุดจาก Cloud แบบรับประกัน — retry จนกว่าจะสำเร็จ (สูงสุด 5 ครั้ง)
+    function ensureCloudPull(attempt) {
+      attempt = attempt || 0;
+      if (cloudPullComplete || attempt >= 5) return;
+      try { pullFromCloud(); } catch (e) { console.error("pullFromCloud error", e); }
+      setTimeout(() => ensureCloudPull(attempt + 1), 2500);
     }
 
     function persistState() {
