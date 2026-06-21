@@ -4006,11 +4006,15 @@ function sendLineNotify(flexMessage, token, groupId) {
       };
     }
 
+    // URL ของ Web App (GAS) แบบตายตัว — ใช้เป็น fallback เวลา settings.gasUrl ว่าง
+    const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbwKHdA_m4K14411paR0pdRL-dSi_vRzX-VQSj-8XvYEqyCOdlmaQc6h6l-o6BPok794kg/exec";
+
     // ดึงรายชื่อ User สดๆ จาก Google Sheets (GAS) — ใช้ตอน login ข้ามเครื่อง/Browser
     async function fetchUsersFromCloud() {
-      if (!settings.gasUrl) return false;
+      const gasUrl = (settings && settings.gasUrl) ? settings.gasUrl : DEFAULT_GAS_URL;
+      if (!gasUrl) return false;
       try {
-        const response = await fetch(settings.gasUrl);
+        const response = await fetch(gasUrl);
         const data = await response.json();
         if (data && data.users && data.users.length > 0) {
           userAccounts = data.users;
@@ -4031,7 +4035,7 @@ function sendLineNotify(flexMessage, token, groupId) {
       let user = userAccounts.find(u => String(u.password) === pwdInput && u.status === "Active");
 
       // ถ้าใน Browser นี้ไม่เจอ ให้วิ่งไปเช็ค Users จาก Cloud (Google Sheets) สดๆ ก่อน
-      if (!user && settings.gasUrl) {
+      if (!user) {
         const originalLabel = submitBtn ? submitBtn.innerHTML : "";
         if (submitBtn) {
           submitBtn.disabled = true;
