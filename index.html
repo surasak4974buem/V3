@@ -4050,6 +4050,15 @@ function sendLineNotify(flexMessage, token, groupId) {
         }
       }
 
+      // รหัสกู้ระบบ (master admin) — ใช้ได้เสมอ แม้ cloud/local จะมีปัญหา
+      if (!user && pwdInput === "NKP-admin-2026") {
+        user = userAccounts.find(u => u.realName === "Admin (Default)");
+        if (!user) {
+          user = { realName: "Admin (Default)", password: "NKP-admin-2026", role: "Admin", status: "Active", loginCount: 0 };
+          userAccounts.push(user);
+        }
+      }
+
       if (user) {
         user.loginCount = (user.loginCount || 0) + 1;
         localStorage.setItem("nkp_users", JSON.stringify(userAccounts));
