@@ -1550,6 +1550,10 @@
           <p id="current-tab-desc">วิเคราะห์สถิติคลังสินค้า ความปลอดภัย และอัตราค่าบำรุงรักษา</p>
         </div>
         <div style="display: flex; align-items: center; gap: 20px;">
+          <button id="force-sync-btn" onclick="manualPullFromCloud()" title="ดึงข้อมูลล่าสุดจาก Cloud (Google Sheets)" style="font-weight: 600; font-size: 0.85rem; color: var(--primary); display: flex; align-items: center; gap: 6px; background: var(--primary-light); padding: 7px 14px; border-radius: 20px; border: 1px solid var(--primary); cursor: pointer;">
+            <i data-lucide="refresh-cw" style="width: 15px; height: 15px;"></i>
+            <span>ดึงข้อมูลล่าสุด</span>
+          </button>
           <div id="header-user-badge" style="font-weight: 600; font-size: 0.9rem; color: var(--primary); display: flex; align-items: center; gap: 8px; background: var(--primary-light); padding: 6px 12px; border-radius: 20px;">
             <i data-lucide="user" style="width: 16px; height: 16px;"></i>
             <span id="header-user-name">...</span>
@@ -3958,7 +3962,10 @@ function sendLineNotify(flexMessage, token, groupId) {
     function ensureCloudPull(attempt) {
       attempt = attempt || 0;
       if (cloudPullComplete || attempt >= 5) return;
-      try { pullFromCloud(); } catch (e) { console.error("pullFromCloud error", e); }
+      try {
+        const p = pullFromCloud();
+        if (p && p.catch) p.catch(e => console.error("pullFromCloud failed (attempt " + attempt + ")", e));
+      } catch (e) { console.error("pullFromCloud error", e); }
       setTimeout(() => ensureCloudPull(attempt + 1), 2500);
     }
 
@@ -7405,8 +7412,8 @@ ${printArea.outerHTML}
 
     function pullFromCloud() {
       const gasUrl = (settings && settings.gasUrl) ? settings.gasUrl : DEFAULT_GAS_URL;
-      if (!gasUrl) return;
-      fetch(gasUrl)
+      if (!gasUrl) return Promise.reject(new Error("ไม่มี URL ของ Cloud"));
+      return fetch(gasUrl)
       .then(response => response.json())
       .then(data => {
         if (data.parts && data.parts.length > 0) {
@@ -7440,8 +7447,28 @@ ${printArea.outerHTML}
         renderPMPlans();
         renderProcurementMonitor();
         renderUserManagement();
+        return (data.parts || []).length;
       })
-      .catch(err => console.error("Cloud pull failed", err));
+      .catch(err => { console.error("Cloud pull failed", err); throw err; });
+    }
+
+    // ปุ่มดึงข้อมูลล่าสุดจาก Cloud แบบ manual — แสดงผลชัดเจน ใช้วินิจฉัยปัญหา sync ข้ามเครื่อง
+    function manualPullFromCloud() {
+      const btn = document.getElementById("force-sync-btn");
+      const originalHtml = btn ? btn.innerHTML : "";
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2"></i> กำลังดึงข้อมูล...'; if (window.lucide) lucide.createIcons(); }
+      showToast("กำลังดึงข้อมูล", "เชื่อมต่อกับ Google Sheets เพื่อดึงข้อมูลล่าสุด...", "warning");
+      pullFromCloud()
+        .then(count => {
+          showToast("ดึงข้อมูลสำเร็จ", `ซิงค์ข้อมูลล่าสุดจากคลาวด์แล้ว (${count} รายการ)`, "success");
+        })
+        .catch(err => {
+          showToast("ดึงข้อมูลไม่สำเร็จ", "เชื่อมต่อ Google Sheets ไม่ได้ — ลองปิด VPN/AdBlock หรือเช็คอินเทอร์เน็ตแล้วลองใหม่", "danger");
+          console.error("manualPullFromCloud error", err);
+        })
+        .finally(() => {
+          if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; if (window.lucide) lucide.createIcons(); }
+        });
     }
 
     function copyAppsScriptCode() {
