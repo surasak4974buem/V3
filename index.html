@@ -4006,11 +4006,45 @@ function sendLineNotify(flexMessage, token, groupId) {
       };
     }
 
-    function processLogin() {
+    // ดึงรายชื่อ User สดๆ จาก Google Sheets (GAS) — ใช้ตอน login ข้ามเครื่อง/Browser
+    async function fetchUsersFromCloud() {
+      if (!settings.gasUrl) return false;
+      try {
+        const response = await fetch(settings.gasUrl);
+        const data = await response.json();
+        if (data && data.users && data.users.length > 0) {
+          userAccounts = data.users;
+          localStorage.setItem("nkp_users", JSON.stringify(userAccounts));
+          return true;
+        }
+      } catch (err) {
+        console.error("ดึงข้อมูล Users จากคลาวด์ไม่สำเร็จ", err);
+      }
+      return false;
+    }
+
+    async function processLogin() {
       const pwdInput = document.getElementById("login-password").value.trim();
       const errorDiv = document.getElementById("login-error");
+      const submitBtn = document.getElementById("login-submit-btn");
 
-      const user = userAccounts.find(u => String(u.password) === pwdInput && u.status === "Active");
+      let user = userAccounts.find(u => String(u.password) === pwdInput && u.status === "Active");
+
+      // ถ้าใน Browser นี้ไม่เจอ ให้วิ่งไปเช็ค Users จาก Cloud (Google Sheets) สดๆ ก่อน
+      if (!user && settings.gasUrl) {
+        const originalLabel = submitBtn ? submitBtn.innerHTML : "";
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = "กำลังตรวจสอบกับคลาวด์...";
+        }
+        if (errorDiv) errorDiv.innerText = "";
+        await fetchUsersFromCloud();
+        user = userAccounts.find(u => String(u.password) === pwdInput && u.status === "Active");
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalLabel;
+        }
+      }
 
       if (user) {
         user.loginCount = (user.loginCount || 0) + 1;
