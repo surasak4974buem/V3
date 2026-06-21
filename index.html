@@ -1632,33 +1632,6 @@
           </div>
         </div>
 
-        <!-- Critical Alerts List Table -->
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title" style="color: var(--danger); font-size:0.7rem; font-weight:600; letter-spacing:0.04em;">
-              <i data-lucide="bell-ring" style="width:14px; height:14px;"></i>
-              อะไหล่ที่ต้องดำเนินการอย่างเร่งด่วน (ต่ำกว่าเกณฑ์ / หมดอายุ)
-            </span>
-          </div>
-          <div class="table-wrapper">
-            <table class="custom-table" id="dashboard-alerts-table">
-              <thead>
-                <tr>
-                  <th>รหัสอะไหล่</th>
-                  <th>ชื่ออะไหล่</th>
-                  <th>ตำแหน่งจัดเก็บ</th>
-                  <th>คงเหลือ (ชิ้น)</th>
-                  <th>จุดต่ำสุด/สั่งซื้อ</th>
-                  <th>สถานะปัญหา</th>
-                  <th>ผู้จัดจำหน่าย</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Populated dynamically by JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
       </section>
 
       <!-- TAB 2: SPARE PARTS CATALOG -->
@@ -4701,50 +4674,8 @@ ${printArea.outerHTML}
       const totalValue = parts.reduce((sum, p) => sum + (p.unitPrice * p.inStock), 0);
       if (totalValueEl) totalValueEl.innerText = "฿" + totalValue.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-      renderDashboardAlertsTable();
       drawDashboardCharts();
       renderUrgentStockChart();
-    }
-
-    function renderDashboardAlertsTable() {
-      const tbody = document.querySelector("#dashboard-alerts-table tbody");
-      if (!tbody) return;
-      tbody.innerHTML = "";
-
-      const alertParts = parts.filter(p => {
-        const stockState = getStockState(p);
-        const expiryState = getExpiryState(p.expiryDate);
-        return stockState.status === "Low Stock" || stockState.status === "Out of Stock" || expiryState.status === "Expired" || expiryState.status === "Near Expiry";
-      });
-
-      if (alertParts.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">🎉 ไม่มีรายการด่วน อะไหล่ทุกรายการมีความปลอดภัยและเพียงพอ</td></tr>`;
-        return;
-      }
-
-      alertParts.forEach(p => {
-        const stockState = getStockState(p);
-        const expiryState = getExpiryState(p.expiryDate);
-        
-        let issueLabel = "";
-        if (stockState.status === "Out of Stock") issueLabel += `<span class="badge badge-out-of-stock">คลังหมด</span> `;
-        else if (stockState.status === "Low Stock") issueLabel += `<span class="badge badge-low-stock">สต๊อกต่ำ</span> `;
-        
-        if (expiryState.status === "Expired") issueLabel += `<span class="badge badge-expired">หมดอายุ</span>`;
-        else if (expiryState.status === "Near Expiry") issueLabel += `<span class="badge badge-near-expiry">ใกล้หมดอายุ</span>`;
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td><strong>${p.code}</strong></td>
-          <td>${p.name}</td>
-          <td><span style="font-size: 0.8rem; background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px;">${p.location}</span></td>
-          <td><strong>${p.inStock}</strong></td>
-          <td>${p.minStock} / ${p.reorderPoint}</td>
-          <td>${issueLabel}</td>
-          <td><span style="font-size: 0.8rem; color: var(--text-secondary);">${p.supplierName}</span></td>
-        `;
-        tbody.appendChild(tr);
-      });
     }
 
     function drawDashboardCharts() {
