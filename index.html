@@ -3746,6 +3746,7 @@ function sendLineNotify(flexMessage, token, groupId) {
     let equipment = [];
     let transactions = [];
     let pmPlans = [];
+    let cloudPullComplete = false; // กันไม่ให้ push ข้อมูลเก่าทับ Cloud ก่อนดึงข้อมูลล่าสุดสำเร็จ
     let settings = {
       password: "NKP-medparts-2026",
       gasUrl: "https://script.google.com/macros/s/AKfycbwKHdA_m4K14411paR0pdRL-dSi_vRzX-VQSj-8XvYEqyCOdlmaQc6h6l-o6BPok794kg/exec",
@@ -7369,8 +7370,14 @@ ${printArea.outerHTML}
     }
 
     function triggerCloudSync() {
-      if (!settings.gasUrl) return;
-      fetch(settings.gasUrl, {
+      const gasUrl = (settings && settings.gasUrl) ? settings.gasUrl : DEFAULT_GAS_URL;
+      if (!gasUrl) return;
+      // ห้าม push ขึ้น Cloud จนกว่าจะดึงข้อมูลล่าสุดสำเร็จก่อน — กันข้อมูลเก่าทับของใหม่
+      if (!cloudPullComplete) {
+        console.warn("ข้ามการ sync ขึ้น Cloud: ยังดึงข้อมูลล่าสุดไม่สำเร็จ");
+        return;
+      }
+      fetch(gasUrl, {
         method: "POST",
         headers: { "Content-Type": "text/plain" },
         body: JSON.stringify({
@@ -7387,8 +7394,9 @@ ${printArea.outerHTML}
     }
 
     function pullFromCloud() {
-      if (!settings.gasUrl) return;
-      fetch(settings.gasUrl)
+      const gasUrl = (settings && settings.gasUrl) ? settings.gasUrl : DEFAULT_GAS_URL;
+      if (!gasUrl) return;
+      fetch(gasUrl)
       .then(response => response.json())
       .then(data => {
         if (data.parts && data.parts.length > 0) {
@@ -7414,6 +7422,7 @@ ${printArea.outerHTML}
           settings.budgetItems = data.budgetItems;
           localStorage.setItem("nkp_parts_settings", JSON.stringify(settings));
         }
+        cloudPullComplete = true; // ดึงข้อมูลล่าสุดสำเร็จ — อนุญาตให้ sync ขึ้น Cloud ได้แล้ว
         updateDashboard();
         renderCatalog();
         populateTransactionSelects();
